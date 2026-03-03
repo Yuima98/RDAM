@@ -1,0 +1,15 @@
+{
+  "properties": [
+    { "name": "rdam.jwt.secret", "type": "java.lang.String" },
+    { "name": "rdam.jwt.expiration-citizen-ms", "type": "java.lang.Long" },
+    { "name": "rdam.jwt.expiration-operator-ms", "type": "java.lang.Long" },
+    { "name": "rdam.storage.path", "type": "java.lang.String" },
+    { "name": "rdam.pluspagos.url", "type": "java.lang.String" },
+    { "name": "rdam.pluspagos.merchant-guid", "type": "java.lang.String" },
+    { "name": "rdam.pluspagos.secret-key", "type": "java.lang.String" },
+    { "name": "rdam.pluspagos.callback-url", "type": "java.lang.String" },
+    { "name": "rdam.pluspagos.url-success", "type": "java.lang.String" },
+    { "name": "rdam.pluspagos.url-error", "type": "java.lang.String" },
+    { "name": "rdam.pluspagos.monto-centavos", "type": "java.lang.String" }
+  ]
+}

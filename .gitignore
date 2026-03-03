@@ -1,0 +1,10 @@
+target/
+*.class
+*.jar
+.idea/
+*.iml
+.vscode/launch.json
+.env
+storage/
+*.log
+.DS_Store
