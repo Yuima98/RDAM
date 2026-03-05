@@ -5,8 +5,6 @@ import ar.gob.pj.rdam.exception.BusinessException;
 import ar.gob.pj.rdam.model.User;
 import ar.gob.pj.rdam.repository.UserRepository;
 import ar.gob.pj.rdam.security.JwtService;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -16,20 +14,22 @@ import java.time.LocalDateTime;
 @Service
 public class AuthService {
 
-    private static final Logger log = LoggerFactory.getLogger(AuthService.class);
     private static final int OTP_EXPIRATION_MINUTES = 10;
 
     private final UserRepository userRepository;
     private final JwtService jwtService;
     private final PasswordEncoder passwordEncoder;
+    private final EmailService emailService;
     private final SecureRandom random = new SecureRandom();
 
     public AuthService(UserRepository userRepository,
                        JwtService jwtService,
-                       PasswordEncoder passwordEncoder) {
+                       PasswordEncoder passwordEncoder,
+                       EmailService emailService) {
         this.userRepository = userRepository;
         this.jwtService = jwtService;
         this.passwordEncoder = passwordEncoder;
+        this.emailService = emailService;
     }
 
     // ── Register (ciudadano) ──────────────────────────────────────────────────
@@ -60,7 +60,7 @@ public class AuthService {
         userRepository.saveOtp(userId, otp, expiresAt);
 
         // En producción aquí se enviaría el email.
-        log.info("=== OTP PARA {} : {} (expira: {}) ===", email, otp, expiresAt);
+        emailService.enviarOtp(email, otp);
     }
 
     // ── Verify OTP (ciudadano) ────────────────────────────────────────────────
