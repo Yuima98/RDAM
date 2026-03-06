@@ -115,4 +115,11 @@ public class UserRepository {
             jdbc.update("UPDATE users SET circunscripcion_id = NULL WHERE id = ?", userId);
         }
     }
+
+    public boolean circunscripcionActiva(Integer id) {
+    Integer count = jdbc.queryForObject(
+        "SELECT COUNT(*) FROM circunscripciones WHERE id = ? AND is_active = 1", 
+        Integer.class, id);
+    return count != null && count > 0;
+}
 }

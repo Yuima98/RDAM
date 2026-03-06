@@ -35,6 +35,12 @@ public class AdminService {
             throw new BusinessException("El email ya esta registrado", 409);
         }
 
+        if ("operator".equals(req.getRole()) && req.getCircunscripcionId() != null) {
+            if (!userRepository.circunscripcionActiva(req.getCircunscripcionId())) {
+            throw new BusinessException("La circunscripcion no existe o no esta activa", 400);
+        }
+}
+
         if ("operator".equals(req.getRole()) && req.getCircunscripcionId() == null) {
             throw new BusinessException("Los operadores deben tener una circunscripcion asignada", 400);
         }
