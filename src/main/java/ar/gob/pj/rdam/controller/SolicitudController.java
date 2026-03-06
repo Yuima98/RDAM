@@ -3,6 +3,7 @@ package ar.gob.pj.rdam.controller;
 import ar.gob.pj.rdam.dto.SolicitudDTO;
 import ar.gob.pj.rdam.repository.SolicitudRepository;
 import ar.gob.pj.rdam.service.SolicitudService;
+import ar.gob.pj.rdam.exception.BusinessException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
@@ -31,13 +32,17 @@ public class SolicitudController {
     }
 
     @PostMapping("/api/v1/solicitudes")
-    public ResponseEntity<SolicitudDTO.CreateResponse> crear(
-        @Valid @RequestBody SolicitudDTO.CreateRequest req,
-        Authentication auth
-    ) {
-        Long ciudadanoId = (Long) auth.getPrincipal();
-        return ResponseEntity.status(HttpStatus.CREATED).body(solicitudService.crear(req, ciudadanoId));
+public ResponseEntity<SolicitudDTO.CreateResponse> crear(
+    @Valid @RequestBody SolicitudDTO.CreateRequest req,
+    Authentication auth
+) {
+    String role = auth.getAuthorities().iterator().next().getAuthority().replace("ROLE_", "").toLowerCase();
+    if (!"citizen".equals(role)) {
+        throw new BusinessException("No tenes permiso para acceder a este recurso", 403);
     }
+    Long ciudadanoId = (Long) auth.getPrincipal();
+    return ResponseEntity.status(HttpStatus.CREATED).body(solicitudService.crear(req, ciudadanoId));
+}
 
     @GetMapping("/api/v1/solicitudes")
     public ResponseEntity<SolicitudDTO.PagedResponse> listar(

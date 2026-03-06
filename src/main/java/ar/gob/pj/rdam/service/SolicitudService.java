@@ -34,6 +34,7 @@ public class SolicitudService {
     }
 
     public SolicitudDTO.PagedResponse listarPorCiudadano(Long ciudadanoId, String estado, int page, int size) {
+        if (page < 1) page = 1;
         if (size > 50) size = 50;
         int offset = (page - 1) * size;
         List<Solicitud> solicitudes = solicitudRepository.findByCiudadano(ciudadanoId, estado, offset, size);
@@ -46,6 +47,7 @@ public class SolicitudService {
     }
 
     public SolicitudDTO.PagedResponse listarTodas(String estado, Integer circunscripcionId, String cuil, int page, int size) {
+        if (page < 1) page = 1;
         if (size > 100) size = 100;
         int offset = (page - 1) * size;
         String estadoFiltro = (estado == null || estado.isBlank()) ? "pagada" : estado;
