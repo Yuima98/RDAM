@@ -4,22 +4,31 @@ import ar.gob.pj.rdam.dto.SolicitudDTO;
 import ar.gob.pj.rdam.exception.BusinessException;
 import ar.gob.pj.rdam.exception.ResourceNotFoundException;
 import ar.gob.pj.rdam.model.Solicitud;
+import ar.gob.pj.rdam.repository.CircunscripcionRepository;
 import ar.gob.pj.rdam.repository.SolicitudRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Map;
 
 @Service
 public class SolicitudService {
 
     private final SolicitudRepository solicitudRepository;
+    private final CircunscripcionRepository circunscripcionRepository;
 
-    public SolicitudService(SolicitudRepository solicitudRepository) {
+    public SolicitudService(SolicitudRepository solicitudRepository,
+                            CircunscripcionRepository circunscripcionRepository) {
         this.solicitudRepository = solicitudRepository;
+        this.circunscripcionRepository = circunscripcionRepository;
+    }
+
+    public List<Map<String, Object>> listarCircunscripciones() {
+        return solicitudRepository.findAllCircunscripciones();
     }
 
     public SolicitudDTO.CreateResponse crear(SolicitudDTO.CreateRequest req, Long ciudadanoId) {
-        if (!solicitudRepository.circunscripcionActiva(req.getCircunscripcionId())) {
+        if (!circunscripcionRepository.existsActiva(req.getCircunscripcionId())) {
             throw new BusinessException("La circunscripcion no existe o no esta activa", 400);
         }
         Solicitud s = new Solicitud();

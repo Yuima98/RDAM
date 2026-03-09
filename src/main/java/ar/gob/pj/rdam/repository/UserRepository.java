@@ -116,10 +116,4 @@ public class UserRepository {
         }
     }
 
-    public boolean circunscripcionActiva(Integer id) {
-    Integer count = jdbc.queryForObject(
-        "SELECT COUNT(*) FROM circunscripciones WHERE id = ? AND is_active = 1", 
-        Integer.class, id);
-    return count != null && count > 0;
-}
 }

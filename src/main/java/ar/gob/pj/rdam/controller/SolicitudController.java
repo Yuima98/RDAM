@@ -1,7 +1,6 @@
 package ar.gob.pj.rdam.controller;
 
 import ar.gob.pj.rdam.dto.SolicitudDTO;
-import ar.gob.pj.rdam.repository.SolicitudRepository;
 import ar.gob.pj.rdam.service.SolicitudService;
 import ar.gob.pj.rdam.exception.BusinessException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -18,17 +17,14 @@ import java.util.Map;
 public class SolicitudController {
 
     private final SolicitudService solicitudService;
-    private final SolicitudRepository solicitudRepository;
 
-    public SolicitudController(SolicitudService solicitudService,
-                               SolicitudRepository solicitudRepository) {
+    public SolicitudController(SolicitudService solicitudService) {
         this.solicitudService = solicitudService;
-        this.solicitudRepository = solicitudRepository;
     }
 
     @GetMapping("/api/v1/circunscripciones")
     public ResponseEntity<List<Map<String, Object>>> listarCircunscripciones() {
-        return ResponseEntity.ok(solicitudRepository.findAllCircunscripciones());
+        return ResponseEntity.ok(solicitudService.listarCircunscripciones());
     }
 
     @PostMapping("/api/v1/solicitudes")

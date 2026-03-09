@@ -71,4 +71,19 @@ public class AuthDTO {
         public LocalDateTime getExpiresAt() { return expiresAt; }
         public String getRole() { return role; }
     }
+
+        // ── POST /auth/register — Solo perfil dev ─────────────────────────────────
+    // TODO [TESTING] — Eliminar antes de producción.
+    // Expone el OTP en el response para facilitar tests sin acceso a Mailtrap.
+    public static class RegisterDevResponse {
+        private final String message = "OTP generado correctamente (solo visible en perfil dev)";
+        private String otpCode;
+
+        public RegisterDevResponse(String otpCode) {
+            this.otpCode = otpCode;
+        }
+
+        public String getMessage() { return message; }
+        public String getOtpCode() { return otpCode; }
+    }
 }

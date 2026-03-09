@@ -6,6 +6,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
+
+
 @RestController
 @RequestMapping("/api/v1")
 public class PagoController {
@@ -28,8 +30,13 @@ public class PagoController {
 
     // POST /api/v1/pagos/webhook (público — llamado por PlusPagos)
     @PostMapping("/pagos/webhook")
-    public ResponseEntity<Void> webhook(@RequestBody PagoDTO.WebhookRequest webhook) {
+    public ResponseEntity<Void> webhook(
+            @RequestBody(required = false) PagoDTO.WebhookRequest webhook) {
+        if (webhook == null) {
+            return ResponseEntity.badRequest().build();
+        }
         pagoService.procesarWebhook(webhook);
         return ResponseEntity.ok().build();
     }
+
 }

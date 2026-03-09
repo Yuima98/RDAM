@@ -34,7 +34,10 @@ public class AuthService {
 
     // ── Register (ciudadano) ──────────────────────────────────────────────────
 
-    public void register(AuthDTO.RegisterRequest req) {
+    // TODO [TESTING] — En producción este método debe retornar void.
+    // Retorna el OTP generado para que el controller pueda exponerlo
+    // en el response cuando el perfil activo es "dev".
+    public String register(AuthDTO.RegisterRequest req) {
         String email = req.getEmail().toLowerCase().trim();
 
         Long userId;
@@ -59,8 +62,10 @@ public class AuthService {
         LocalDateTime expiresAt = LocalDateTime.now().plusMinutes(OTP_EXPIRATION_MINUTES);
         userRepository.saveOtp(userId, otp, expiresAt);
 
-        // En producción aquí se enviaría el email.
         emailService.enviarOtp(email, otp);
+
+    // TODO [TESTING] — En producción reemplazar por: return; (void)
+        return otp;
     }
 
     // ── Verify OTP (ciudadano) ────────────────────────────────────────────────

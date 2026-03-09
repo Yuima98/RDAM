@@ -4,6 +4,7 @@ import ar.gob.pj.rdam.dto.AdminDTO;
 import ar.gob.pj.rdam.exception.BusinessException;
 import ar.gob.pj.rdam.exception.ResourceNotFoundException;
 import ar.gob.pj.rdam.model.User;
+import ar.gob.pj.rdam.repository.CircunscripcionRepository;
 import ar.gob.pj.rdam.repository.UserRepository;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -15,10 +16,14 @@ import java.util.stream.Collectors;
 public class AdminService {
 
     private final UserRepository userRepository;
+    private final CircunscripcionRepository circunscripcionRepository;
     private final PasswordEncoder passwordEncoder;
 
-    public AdminService(UserRepository userRepository, PasswordEncoder passwordEncoder) {
+    public AdminService(UserRepository userRepository,
+                        CircunscripcionRepository circunscripcionRepository,
+                        PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
+        this.circunscripcionRepository = circunscripcionRepository;
         this.passwordEncoder = passwordEncoder;
     }
 
@@ -36,7 +41,7 @@ public class AdminService {
         }
 
         if ("operator".equals(req.getRole()) && req.getCircunscripcionId() != null) {
-            if (!userRepository.circunscripcionActiva(req.getCircunscripcionId())) {
+            if (!circunscripcionRepository.existsActiva(req.getCircunscripcionId())) {
             throw new BusinessException("La circunscripcion no existe o no esta activa", 400);
         }
 }

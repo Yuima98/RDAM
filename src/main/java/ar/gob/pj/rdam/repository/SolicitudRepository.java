@@ -117,11 +117,6 @@ public class SolicitudRepository {
         );
     }
 
-    public boolean circunscripcionActiva(Integer id) {
-        Integer count = jdbc.queryForObject("SELECT COUNT(*) FROM circunscripciones WHERE id = ? AND is_active = 1", Integer.class, id);
-        return count != null && count > 0;
-    }
-
     public List<Map<String, Object>> findAllCircunscripciones() {
         return jdbc.queryForList("SELECT id, nombre FROM circunscripciones WHERE is_active = 1 ORDER BY id");
     }
