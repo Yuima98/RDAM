@@ -5,6 +5,7 @@ import ar.gob.pj.rdam.exception.BusinessException;
 import ar.gob.pj.rdam.model.User;
 import ar.gob.pj.rdam.repository.UserRepository;
 import ar.gob.pj.rdam.security.JwtService;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -21,6 +22,10 @@ public class AuthService {
     private final PasswordEncoder passwordEncoder;
     private final EmailService emailService;
     private final SecureRandom random = new SecureRandom();
+
+    // TODO [TESTING] — En producción eliminar esta variable y la condición en register().
+    @Value("${spring.profiles.active:prod}")
+    private String activeProfile;
 
     public AuthService(UserRepository userRepository,
                        JwtService jwtService,
@@ -62,9 +67,12 @@ public class AuthService {
         LocalDateTime expiresAt = LocalDateTime.now().plusMinutes(OTP_EXPIRATION_MINUTES);
         userRepository.saveOtp(userId, otp, expiresAt);
 
-        emailService.enviarOtp(email, otp);
+        // TODO [TESTING] — En producción eliminar la condición y dejar solo emailService.enviarOtp(email, otp)
+        if (!"dev".equals(activeProfile)) {
+            emailService.enviarOtp(email, otp);
+        }
 
-    // TODO [TESTING] — En producción reemplazar por: return; (void)
+        // TODO [TESTING] — En producción reemplazar por: return; (void)
         return otp;
     }
 

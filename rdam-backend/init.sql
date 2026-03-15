@@ -4,10 +4,12 @@
 -- =============================================================================
 
 CREATE SCHEMA IF NOT EXISTS `rdam`
+    
     DEFAULT CHARACTER SET utf8mb4
     COLLATE utf8mb4_unicode_ci;
 
 USE `rdam`;
+SET NAMES utf8mb4;
 
 -- =============================================================================
 -- TABLAS

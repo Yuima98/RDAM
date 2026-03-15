@@ -33,7 +33,7 @@ services:
     ports:
       - "8080:8080"
     environment:
-      DB_URL: jdbc:mysql://db:3306/rdam?useSSL=false&serverTimezone=America/Argentina/Buenos_Aires&characterEncoding=UTF-8&allowPublicKeyRetrieval=true
+      DB_URL: jdbc:mysql://db:3306/rdam?useSSL=false&serverTimezone=America/Argentina/Buenos_Aires&characterEncoding=UTF-8&useUnicode=true&allowPublicKeyRetrieval=true&connectionCollation=utf8mb4_unicode_ci
       DB_USER: root
       DB_PASSWORD: ${DB_PASSWORD}
       JWT_SECRET: ${JWT_SECRET}
