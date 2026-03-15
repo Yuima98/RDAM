@@ -327,6 +327,35 @@ export default function DetalleSolicitudPage() {
         </div>
       )}
 
+      {solicitud.estado === 'cancelada' && (
+        <div style={{
+          background: 'var(--accent-light)', border: '1px solid rgba(200,16,46,.2)',
+          borderRadius: 'var(--radius)', padding: '20px 24px',
+          display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+          flexWrap: 'wrap', gap: 12,
+        }}>
+          <div>
+            <div style={{ fontSize: 15, fontWeight: 700, color: 'var(--accent)', marginBottom: 4 }}>
+              Solicitud cancelada
+            </div>
+            <div style={{ fontSize: 13, color: 'var(--gray-600)' }}>
+              El pago no fue completado. Para obtener el certificado debés iniciar una nueva solicitud.
+            </div>
+          </div>
+          <a
+            href="/ciudadano/nueva"
+            style={{
+              display: 'inline-flex', alignItems: 'center', gap: 8,
+              padding: '10px 20px', borderRadius: 'var(--radius-sm)',
+              background: 'var(--accent)', color: '#fff', textDecoration: 'none',
+              fontFamily: 'var(--font)', fontSize: 14, fontWeight: 600,
+            }}
+          >
+            Nueva solicitud
+          </a>
+        </div>
+      )}
+
       {solicitud.estado === 'publicada' && (
         <div style={{
           background: 'var(--success-light)', border: '1px solid rgba(13,122,78,.2)',

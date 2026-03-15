@@ -67,7 +67,7 @@ function ResultPage({ type }) {
         <p style={{ fontSize: 14, color: 'var(--gray-600)', marginBottom: 20, lineHeight: 1.6 }}>
           {isOk
             ? 'Tu pago fue procesado correctamente. El operador recibirá tu solicitud y publicará el certificado en las próximas horas.'
-            : 'El pago fue cancelado o no pudo procesarse. Podés intentarlo nuevamente desde tu historial de trámites.'}
+            : 'El pago no fue completado. La solicitud fue cancelada. Para obtener el certificado debés iniciar una nueva solicitud.'}
         </p>
 
         {solicitudId && (

@@ -19,6 +19,7 @@
  */
 
 import { useEffect, useState } from 'react';
+import { useAuth } from '../../context/AuthContext';
 import adminService from '../../api/adminService';
 import solicitudService from '../../api/solicitudService';
 
@@ -39,6 +40,7 @@ const inputStyle = {
 const labelStyle = { display: 'block', fontSize: 12.5, fontWeight: 600, color: 'var(--gray-700)', marginBottom: 5 };
 
 export default function GestionUsuariosPage() {
+  const { user } = useAuth();
   const [usuarios,          setUsuarios]          = useState([]);
   const [circunscripciones, setCircunscripciones] = useState([]);
   const [isLoading,         setIsLoading]         = useState(true);
@@ -111,7 +113,7 @@ export default function GestionUsuariosPage() {
   };
 
   return (
-    <div style={{ padding: 32, maxWidth: 900, margin: '0 auto' }}>
+    <div style={{ padding: 32, maxWidth: 1100, margin: '0 auto' }}>
 
       {/* Encabezado */}
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 24, flexWrap: 'wrap', gap: 12 }}>
@@ -228,7 +230,7 @@ export default function GestionUsuariosPage() {
       )}
 
       {/* Tabla de usuarios */}
-      <div style={{ background: '#fff', border: '1px solid var(--gray-200)', borderRadius: 'var(--radius)', overflow: 'hidden' }}>
+      <div style={{ background: '#fff', border: '1px solid var(--gray-200)', borderRadius: 'var(--radius)', overflow: 'auto' }}>
         {error ? (
           <div style={{ padding: 32, textAlign: 'center', color: 'var(--accent)', fontSize: 13 }}>{error}</div>
         ) : (
@@ -259,7 +261,7 @@ export default function GestionUsuariosPage() {
                 usuarios.map((u, i) => (
                   <tr key={u.id} style={{ borderBottom: i < usuarios.length - 1 ? '1px solid var(--gray-100)' : 'none' }}>
                     <td style={{ padding: '13px 16px', fontSize: 13, color: 'var(--gray-800)' }}>{u.email}</td>
-                    <td style={{ padding: '13px 16px' }}>
+                                        <td style={{ padding: '13px 16px', whiteSpace: 'nowrap' }}>
                       <span style={{
                         fontSize: 12, fontWeight: 600, padding: '3px 10px', borderRadius: 20,
                         background: u.role === 'admin' ? 'var(--accent-light)' : 'var(--primary-xlight)',
@@ -273,7 +275,7 @@ export default function GestionUsuariosPage() {
                         ? (circunscripciones.find((c) => c.id === u.circunscripcionId)?.nombre ?? `#${u.circunscripcionId}`)
                         : <span style={{ color: 'var(--gray-400)' }}>Global</span>}
                     </td>
-                    <td style={{ padding: '13px 16px' }}>
+                                        <td style={{ padding: '13px 16px', whiteSpace: 'nowrap' }}>
                       <span style={{
                         fontSize: 12, fontWeight: 600, padding: '3px 10px', borderRadius: 20,
                         background: u.activo ? 'var(--success-light)' : 'var(--gray-100)',
@@ -285,21 +287,28 @@ export default function GestionUsuariosPage() {
                     <td style={{ padding: '13px 16px', fontSize: 12.5, color: 'var(--gray-500)' }}>
                       {formatDate(u.createdAt)}
                     </td>
-                    <td style={{ padding: '13px 16px' }}>
-                      <button
-                        onClick={() => handleToggle(u)}
-                        disabled={toggling === u.id}
-                        style={{
-                          padding: '5px 12px', borderRadius: 'var(--radius-sm)', fontSize: 12.5, fontWeight: 600,
-                          cursor: toggling === u.id ? 'default' : 'pointer',
-                          border: `1px solid ${u.activo ? 'var(--accent)' : 'var(--success)'}`,
-                          background: 'transparent',
-                          color: u.activo ? 'var(--accent)' : 'var(--success)',
-                          opacity: toggling === u.id ? .6 : 1,
-                        }}
-                      >
-                        {toggling === u.id ? '...' : u.activo ? 'Desactivar' : 'Activar'}
-                      </button>
+                                        <td style={{ padding: '13px 16px', whiteSpace: 'nowrap' }}>
+                      {u.id === user?.id ? (
+                        <span style={{ fontSize: 12, color: 'var(--gray-400)', fontStyle: 'italic' }}>
+                          Tu cuenta
+                        </span>
+                      ) : (
+                        <button
+                          onClick={() => handleToggle(u)}
+                          disabled={toggling === u.id}
+                          style={{
+                            padding: '5px 12px', borderRadius: 'var(--radius-sm)', fontSize: 12.5, fontWeight: 600,
+                            whiteSpace: 'nowrap',
+                            cursor: toggling === u.id ? 'default' : 'pointer',
+                            border: `1px solid ${u.activo ? 'var(--accent)' : 'var(--success)'}`,
+                            background: 'transparent',
+                            color: u.activo ? 'var(--accent)' : 'var(--success)',
+                            opacity: toggling === u.id ? .6 : 1,
+                          }}
+                        >
+                          {toggling === u.id ? '...' : u.activo ? 'Desactivar' : 'Activar'}
+                        </button>
+                      )}
                     </td>
                   </tr>
                 ))
