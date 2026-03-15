@@ -1,10 +1,19 @@
-target/
-*.class
-*.jar
-.idea/
-*.iml
-.vscode/launch.json
-.env
-storage/
-*.log
+# ── Backend ───────────────────────────────────────────────────────────────────
+rdam-backend/target/
+rdam-backend/*.class
+rdam-backend/*.jar
+rdam-backend/.idea/
+rdam-backend/*.iml
+rdam-backend/.vscode/launch.json
+rdam-backend/.env
+rdam-backend/storage/
+
+# ── Frontend ──────────────────────────────────────────────────────────────────
+rdam-frontend/node_modules/
+rdam-frontend/.env
+rdam-frontend/dist/
+rdam-frontend/.vite/
+
+# ── General ───────────────────────────────────────────────────────────────────
 .DS_Store
+*.log
