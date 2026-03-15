@@ -126,7 +126,7 @@ app.post('/procesar-pago', async (req, res) => {
   }
   
   // Determinar resultado según tarjeta
-  const cardClean = cardNumber.replace(/\\s/g, '');
+  const cardClean = cardNumber.replace(/\s/g, '');
   const cardInfo = TEST_CARDS[cardClean] || { status: 'success', name: 'Tarjeta Genérica' };
   
   // Simular delay de procesamiento

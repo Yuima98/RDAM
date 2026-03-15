@@ -96,11 +96,6 @@ public class PagoService {
             return;
         }
 
-        if (!"REALIZADA".equals(webhook.getEstado()) && !"3".equals(webhook.getEstadoId())) {
-            log.info("Pago no aprobado: estado={}", webhook.getEstado());
-            return;
-        }
-
         // Extraer solicitudId del TransaccionComercioId (formato: TXN-{solicitudId}-{timestamp})
         String txnId = webhook.getTransaccionComercioId();
         Long solicitudId = parseSolicitudId(txnId);
@@ -115,17 +110,24 @@ public class PagoService {
             return;
         }
 
-        // Idempotencia: si ya está pagada no procesar de nuevo
+        // Idempotencia: si ya fue procesada no hacer nada
         if (!"pendiente_pago".equals(solicitud.getEstado())) {
             log.info("Solicitud {} ya procesada, estado actual: {}", solicitudId, solicitud.getEstado());
             return;
         }
 
-        solicitudRepository.updateEstado(solicitudId, "pagada",
-            webhook.getTransaccionPlataformaId(), LocalDateTime.now());
-
-        log.info("Solicitud {} marcada como PAGADA. TxnPlataforma: {}",
-            solicitudId, webhook.getTransaccionPlataformaId());
+        if ("REALIZADA".equals(webhook.getEstado()) || "3".equals(webhook.getEstadoId())) {
+            // Pago aprobado → marcar como pagada
+            solicitudRepository.updateEstado(solicitudId, "pagada",
+                webhook.getTransaccionPlataformaId(), LocalDateTime.now());
+            log.info("Solicitud {} marcada como PAGADA. TxnPlataforma: {}",
+                solicitudId, webhook.getTransaccionPlataformaId());
+        } else {
+            // Pago rechazado → marcar como cancelada
+            solicitudRepository.updateEstado(solicitudId, "cancelada");
+            log.info("Solicitud {} marcada como CANCELADA por pago rechazado. Estado webhook: {}",
+                solicitudId, webhook.getEstado());
+        }
     }
 
     // ── Encriptación AES-256-CBC (compatible con crypto.js de PlusPagos) ─────
