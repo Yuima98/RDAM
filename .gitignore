@@ -7,6 +7,8 @@ rdam-backend/*.iml
 rdam-backend/.vscode/launch.json
 rdam-backend/.env
 rdam-backend/storage/
+rdam-backend/pluspagos-mock-simple/node_modules/
+rdam-backend/pluspagos-mock-simple/.env
 
 # ── Frontend ──────────────────────────────────────────────────────────────────
 rdam-frontend/node_modules/
