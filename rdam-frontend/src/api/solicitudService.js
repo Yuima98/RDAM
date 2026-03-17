@@ -30,9 +30,9 @@ const solicitudService = {
   getById: (solicitudId) =>
     axiosClient.get(`/solicitudes/${solicitudId}`).then((r) => r.data),
 
-  crear: ({ cuilConsultado, circunscripcionId, emailContacto }) =>
+  crear: ({ cuilConsultado, circunscripcionId, emailContacto, recaptchaToken }) =>
     axiosClient
-      .post('/solicitudes', { cuilConsultado, circunscripcionId, emailContacto })
+      .post('/solicitudes', { cuilConsultado, circunscripcionId, emailContacto, recaptchaToken })
       .then((r) => r.data),
 
   listarCircunscripciones: () =>

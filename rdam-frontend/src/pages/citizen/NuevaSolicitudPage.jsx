@@ -215,9 +215,9 @@ function Paso1({ form, setForm, onNext }) {
 
 // ── Paso 2: Confirmación ───────────────────────────────────────────────────
 
-function Paso2({ form, circunscripciones, onBack, onConfirm, loading, error, onRecaptcha, recaptchaToken }) {
+function Paso2({ form, circunscripciones, onBack, onConfirm, loading, error, onRecaptcha, recaptchaToken, recaptchaEnabled }) {
   const recaptchaRef = useRef(null);
-  const isDev = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+  const isDev = !recaptchaEnabled;
 
   useEffect(() => {
     let widgetId = null;
@@ -374,9 +374,17 @@ export default function NuevaSolicitudPage() {
     circunscripcionId: '',
     emailContacto:    '',
   });
-  const [loading,        setLoading]        = useState(false);
-  const [error,          setError]          = useState('');
-  const [recaptchaToken, setRecaptchaToken] = useState('');
+  const [loading,          setLoading]          = useState(false);
+  const [error,            setError]            = useState('');
+  const [recaptchaToken,   setRecaptchaToken]   = useState('');
+  const [recaptchaEnabled, setRecaptchaEnabled] = useState(false);
+
+  useEffect(() => {
+    fetch('/api/v1/config')
+      .then(r => r.json())
+      .then(d => setRecaptchaEnabled(d.recaptchaEnabled ?? false))
+      .catch(() => setRecaptchaEnabled(false));
+  }, []);
 
   // Cargamos circunscripciones aquí también para tenerlas en el paso 2
   useEffect(() => {
@@ -466,6 +474,7 @@ export default function NuevaSolicitudPage() {
             error={error}
             onRecaptcha={setRecaptchaToken}
             recaptchaToken={recaptchaToken}
+            recaptchaEnabled={recaptchaEnabled}
           />
         )}
         {step === 2 && <Paso3 />}
