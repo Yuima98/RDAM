@@ -244,7 +244,7 @@ function Paso2({ form, circunscripciones, onBack, onConfirm, loading, error }) {
         {fila('CUIL consultado',  form.cuilConsultado, true)}
         {fila('Circunscripción',  circNombre)}
         {fila('Email de contacto', form.emailContacto)}
-        {fila('Arancel',          '$1.500,00')}
+        {fila('Arancel',          '$5.000,00')}
       </div>
 
       <div style={{

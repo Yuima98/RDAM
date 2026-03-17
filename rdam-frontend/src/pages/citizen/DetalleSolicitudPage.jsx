@@ -18,6 +18,7 @@ import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import solicitudService from '../../api/solicitudService';
+import axiosClient from '../../api/axiosClient';
 import pagoService from '../../api/pagoService';
 import { submitFormPost } from '../../utils/formPost';
 import Badge from '../../components/ui/Badge';
@@ -160,6 +161,22 @@ export default function DetalleSolicitudPage() {
       .catch((err) => setError(err.message ?? 'Error al cargar la solicitud.'))
       .finally(() => setIsLoading(false));
   }, [id]);
+
+  const [resending, setResending] = useState(false);
+  const [resendMsg, setResendMsg] = useState('');
+
+  const handleReenviar = async () => {
+    setResending(true);
+    setResendMsg('');
+    try {
+      await axiosClient.post(`/solicitudes/${id}/certificado/reenviar`);
+      setResendMsg('Certificado reenviado al email de contacto.');
+    } catch (err) {
+      setResendMsg('No se pudo reenviar el certificado. Intentá de nuevo.');
+    } finally {
+      setResending(false);
+    }
+  };
 
   const handleDescargar = async () => {
     setDownloading(true);
@@ -420,24 +437,51 @@ export default function DetalleSolicitudPage() {
               Tu certificado de libre deuda está listo para descargar.
             </div>
           </div>
-          <button
-            onClick={handleDescargar}
-            disabled={downloading}
-            style={{
-              display: 'flex', alignItems: 'center', gap: 8,
-              padding: '10px 20px', borderRadius: 'var(--radius-sm)',
-              background: 'var(--success)', color: '#fff', border: 'none',
-              fontFamily: 'var(--font)', fontSize: 14, fontWeight: 600,
-              cursor: downloading ? 'default' : 'pointer', opacity: downloading ? .7 : 1,
-            }}
-          >
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/>
-              <polyline points="7 10 12 15 17 10"/>
-              <line x1="12" y1="15" x2="12" y2="3"/>
-            </svg>
-            {downloading ? 'Descargando...' : 'Descargar PDF'}
-          </button>
+          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 8 }}>
+            <div style={{ display: 'flex', gap: 8 }}>
+              <button
+                onClick={handleReenviar}
+                disabled={resending}
+                style={{
+                  display: 'flex', alignItems: 'center', gap: 8,
+                  padding: '10px 20px', borderRadius: 'var(--radius-sm)',
+                  background: '#fff', color: 'var(--success)',
+                  border: '1px solid var(--success)',
+                  fontFamily: 'var(--font)', fontSize: 14, fontWeight: 600,
+                  cursor: resending ? 'default' : 'pointer', opacity: resending ? .7 : 1,
+                }}
+              >
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
+                  <polyline points="22,6 12,13 2,6"/>
+                </svg>
+                {resending ? 'Enviando...' : 'Reenviar por email'}
+              </button>
+              <button
+                onClick={handleDescargar}
+                disabled={downloading}
+                style={{
+                  display: 'flex', alignItems: 'center', gap: 8,
+                  padding: '10px 20px', borderRadius: 'var(--radius-sm)',
+                  background: 'var(--success)', color: '#fff', border: 'none',
+                  fontFamily: 'var(--font)', fontSize: 14, fontWeight: 600,
+                  cursor: downloading ? 'default' : 'pointer', opacity: downloading ? .7 : 1,
+                }}
+              >
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/>
+                  <polyline points="7 10 12 15 17 10"/>
+                  <line x1="12" y1="15" x2="12" y2="3"/>
+                </svg>
+                {downloading ? 'Descargando...' : 'Descargar PDF'}
+              </button>
+            </div>
+            {resendMsg && (
+              <div style={{ fontSize: 12.5, color: resendMsg.includes('No se pudo') ? 'var(--accent)' : 'var(--success)' }}>
+                {resendMsg}
+              </div>
+            )}
+          </div>
         </div>
       )}
 

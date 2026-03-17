@@ -25,6 +25,22 @@ function formatDate(iso) {
   });
 }
 
+function diasDesde(iso) {
+  if (!iso) return { texto: '—', alerta: false };
+  // Comparar fechas en hora local ignorando la hora exacta
+  const hoy   = new Date();
+  const fecha = new Date(iso);
+  const hoyStr   = `${hoy.getFullYear()}-${hoy.getMonth()}-${hoy.getDate()}`;
+  const fechaStr = `${fecha.getFullYear()}-${fecha.getMonth()}-${fecha.getDate()}`;
+  const hoyMs   = new Date(hoy.getFullYear(),   hoy.getMonth(),   hoy.getDate()).getTime();
+  const fechaMs = new Date(fecha.getFullYear(), fecha.getMonth(), fecha.getDate()).getTime();
+  const dias = Math.round((hoyMs - fechaMs) / (1000 * 60 * 60 * 24));
+  const alerta = dias > 3;
+  if (dias <= 0) return { texto: 'Hoy',            alerta: false };
+  if (dias === 1) return { texto: 'Hace 1 día',    alerta };
+  return              { texto: `Hace ${dias} días`, alerta };
+}
+
 function SkeletonRow() {
   const s = {
     background: 'var(--gray-100)', borderRadius: 4, height: 14,
@@ -57,7 +73,9 @@ export default function SolicitudesActivasPage() {
     setError('');
     solicitudService.listarInterno({ estado: 'pagada', cuil: cuilFiltro || undefined, page, size: PAGE_SIZE })
       .then((data) => {
-        setSolicitudes(data.data);
+        // Ordenar de más antigua a más nueva para priorizar atención
+        const sorted = [...data.data].sort((a, b) => new Date(a.paymentConfirmedAt) - new Date(b.paymentConfirmedAt));
+        setSolicitudes(sorted);
         setPagination(data.pagination);
       })
       .catch((err) => setError(err.message ?? 'Error al cargar solicitudes.'))
@@ -150,7 +168,7 @@ export default function SolicitudesActivasPage() {
           <table style={{ width: '100%', borderCollapse: 'collapse' }}>
             <thead>
               <tr style={{ background: 'var(--gray-50)' }}>
-                {['N° Trámite', 'CUIL consultado', 'Circunscripción', 'Estado', 'Fecha pago'].map((h) => (
+                {['N° Trámite', 'CUIL consultado', 'Circunscripción', 'Estado', 'Pagada hace'].map((h) => (
                   <th key={h} style={{
                     padding: '10px 16px', textAlign: 'left',
                     fontSize: 11.5, fontWeight: 700, color: 'var(--gray-500)',
@@ -199,7 +217,26 @@ export default function SolicitudesActivasPage() {
                       <Badge estado={s.estado} />
                     </td>
                     <td style={{ padding: '13px 16px', fontSize: 12.5, color: 'var(--gray-500)' }}>
-                      {formatDate(s.updatedAt)}
+                      {(() => {
+        const { texto, alerta } = diasDesde(s.paymentConfirmedAt);
+        return (
+          <span style={{
+            color:      alerta ? 'var(--accent)'       : 'var(--gray-500)',
+            fontWeight: alerta ? 700                   : 400,
+            display: 'flex', alignItems: 'center', gap: 5,
+          }}>
+            {alerta && (
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none"
+                stroke="var(--accent)" strokeWidth="2.5" style={{ flexShrink: 0 }}>
+                <path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/>
+                <line x1="12" y1="9" x2="12" y2="13"/>
+                <line x1="12" y1="17" x2="12.01" y2="17"/>
+              </svg>
+            )}
+            {texto}
+          </span>
+        );
+      })()}
                     </td>
                   </tr>
                 ))

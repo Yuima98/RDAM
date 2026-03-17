@@ -94,7 +94,7 @@ const FAQS = [
   },
   {
     pregunta: '¿Cuánto cuesta el trámite?',
-    respuesta: 'El arancel es de $1.500 por consulta, pagadero a través de la pasarela de pago PlusPagos con tarjeta de crédito o débito.',
+    respuesta: 'El arancel es de $5.000 por consulta, pagadero a través de la pasarela de pago PlusPagos con tarjeta de crédito o débito.',
   },
   {
     pregunta: '¿Qué pasa si el pago falla?',
@@ -110,7 +110,7 @@ const FAQS = [
   },
   {
     pregunta: '¿Qué es la circunscripción?',
-    respuesta: 'La Provincia de Santa Fe está dividida en circunscripciones judiciales. Debés seleccionar la circunscripción correspondiente al domicilio de la persona consultada o donde se tramitó la causa de alimentos.',
+    respuesta: 'La Provincia de Santa Fe está dividida en circunscripciones judiciales. Debés seleccionar la más cercana al domicilio del solicitante.',
   },
   {
     pregunta: '¿Dónde puedo descargar el certificado?',
@@ -148,7 +148,7 @@ export default function AyudaPage() {
         <Paso
           numero={2}
           titulo="Abonás el arancel"
-          descripcion="Serás redirigido a PlusPagos para abonar $1.500 con tarjeta de crédito o débito. El pago es seguro y encriptado."
+          descripcion="Serás redirigido a PlusPagos para abonar $5.000 con tarjeta de crédito o débito. El pago es seguro y encriptado."
         />
         <Paso
           numero={3}
