@@ -51,4 +51,14 @@ public class CertificadoController {
             .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"certificado_" + solicitudId + ".pdf\"")
             .body(resource);
     }
+
+    @PostMapping("/api/v1/solicitudes/{solicitudId}/certificado/reenviar")
+    public ResponseEntity<Map<String, String>> reenviar(
+        @PathVariable Long solicitudId,
+        Authentication auth
+    ) {
+        Long ciudadanoId = (Long) auth.getPrincipal();
+        certificadoService.reenviarCertificado(solicitudId, ciudadanoId);
+        return ResponseEntity.ok(Map.of("message", "Certificado reenviado al email de contacto."));
+    }
 }

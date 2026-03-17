@@ -111,14 +111,14 @@ INSERT INTO `users` (`id`, `email`, `password_hash`, `role`, `circunscripcion_id
 -- SOLICITUDES
 -- =============================================================================
 INSERT INTO `solicitudes` (`id`, `ciudadano_id`, `circunscripcion_id`, `cuil_consultado`, `email_contacto`, `estado`, `payment_external_id`, `payment_confirmed_at`, `created_at`) VALUES
-(1,  5, 1, '20-12345678-9', 'ciudadano_a@gmail.com', 'pendiente_pago',   NULL,                  NULL,                  '2026-03-16 10:00:00'),
-(2,  5, 1, '27-98765432-1', 'ciudadano_a@gmail.com', 'pagada',           'TXN-2-1772338091001', '2026-03-01 10:00:00', '2026-03-01 09:00:00'),
+(1,  5, 1, '20-12345678-9', 'ciudadano_a@gmail.com', 'pendiente_pago',   NULL,                  NULL,                  NOW()),
+(2,  5, 1, '27-98765432-1', 'ciudadano_a@gmail.com', 'pagada',           'TXN-2-1772338091001', NOW(),                 DATE_SUB(NOW(), INTERVAL 1 HOUR)),
 (3,  5, 1, '30-11223344-5', 'ciudadano_a@gmail.com', 'publicada',        'TXN-3-1772338091002', '2026-02-15 09:00:00', '2026-02-15 08:00:00'),
-(4,  5, 1, '20-55667788-9', 'ciudadano_a@gmail.com', 'cancelada',        NULL,                  NULL,                  '2026-03-10 10:00:00'),
-(5,  6, 1, '27-11223355-4', 'ciudadano_b@gmail.com', 'pendiente_pago',   NULL,                  NULL,                  '2026-03-16 10:00:00'),
-(6,  5, 2, '23-44556677-8', 'ciudadano_a@gmail.com', 'pendiente_pago',   NULL,                  NULL,                  '2026-03-16 10:00:00'),
-(7,  5, 1, '20-33445566-7', 'ciudadano_a@gmail.com', 'pagada',           'TXN-7-1772338091007', '2026-03-01 11:00:00', '2026-03-01 10:00:00'),
-(8,  5, 2, '27-44556677-8', 'ciudadano_a@gmail.com', 'pagada',           'TXN-8-1772338091008', '2026-03-01 12:00:00', '2026-03-01 11:00:00'),
+(4,  5, 1, '20-55667788-9', 'ciudadano_a@gmail.com', 'cancelada',        NULL,                  NULL,                  DATE_SUB(NOW(), INTERVAL 5 DAY)),
+(5,  6, 1, '27-11223355-4', 'ciudadano_b@gmail.com', 'pendiente_pago',   NULL,                  NULL,                  NOW()),
+(6,  5, 2, '23-44556677-8', 'ciudadano_a@gmail.com', 'pendiente_pago',   NULL,                  NULL,                  NOW()),
+(7,  5, 1, '20-33445566-7', 'ciudadano_a@gmail.com', 'pagada',           'TXN-7-1772338091007', DATE_SUB(NOW(), INTERVAL 1 DAY),  DATE_SUB(NOW(), INTERVAL 1 DAY)),
+(8,  5, 2, '27-44556677-8', 'ciudadano_a@gmail.com', 'pagada',           'TXN-8-1772338091008', DATE_SUB(NOW(), INTERVAL 5 DAY),  DATE_SUB(NOW(), INTERVAL 5 DAY)),
 (9,  5, 1, '20-99887766-5', 'ciudadano_a@gmail.com', 'publicada_vencida','TXN-9-1772338091009', '2026-01-01 10:00:00', '2026-01-01 09:00:00'),
 (10, 5, 3, '23-11223344-5', 'ciudadano_a@gmail.com', 'vencida',          NULL,                  NULL,                  '2025-12-01 10:00:00');
 

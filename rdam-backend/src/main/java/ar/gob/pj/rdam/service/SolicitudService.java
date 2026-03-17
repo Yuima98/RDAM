@@ -59,7 +59,8 @@ public class SolicitudService {
         long total = solicitudRepository.countByCiudadano(ciudadanoId, estado);
         List<SolicitudDTO.ListItem> items = solicitudes.stream()
             .map(s -> new SolicitudDTO.ListItem(s.getId(), s.getCuilConsultado(),
-                s.getCircunscripcionNombre(), s.getEstado(), s.getCreatedAt(), s.getUpdatedAt()))
+                s.getCircunscripcionNombre(), s.getEstado(), s.getPaymentConfirmedAt(),
+                s.getCreatedAt(), s.getUpdatedAt()))
             .toList();
         return new SolicitudDTO.PagedResponse(items, new SolicitudDTO.PagedResponse.Pagination(page, size, total));
     }
@@ -76,7 +77,8 @@ public class SolicitudService {
         long total = solicitudRepository.countAll(estadoFiltro, circunscripcionId, cuil);
         List<SolicitudDTO.ListItem> items = solicitudes.stream()
             .map(s -> new SolicitudDTO.ListItem(s.getId(), s.getCuilConsultado(),
-                s.getCircunscripcionNombre(), s.getEstado(), s.getCreatedAt(), s.getUpdatedAt()))
+                s.getCircunscripcionNombre(), s.getEstado(), s.getPaymentConfirmedAt(),
+                s.getCreatedAt(), s.getUpdatedAt()))
             .toList();
         return new SolicitudDTO.PagedResponse(items, new SolicitudDTO.PagedResponse.Pagination(page, size, total));
     }
@@ -100,4 +102,4 @@ public class SolicitudService {
         }
         return s;
     }
-}
+}   

@@ -64,6 +64,7 @@ public class SolicitudDTO {
         private String cuilConsultado;
         private String circunscripcion;
         private String estado;
+        private LocalDateTime paymentConfirmedAt;
         private LocalDateTime createdAt;
         private LocalDateTime updatedAt;
 
@@ -78,11 +79,20 @@ public class SolicitudDTO {
             this.updatedAt    = updatedAt;
         }
 
+        // Constructor extendido con paymentConfirmedAt
+        public ListItem(Long solicitudId, String cuilConsultado, String circunscripcion,
+                        String estado, LocalDateTime paymentConfirmedAt,
+                        LocalDateTime createdAt, LocalDateTime updatedAt) {
+            this(solicitudId, cuilConsultado, circunscripcion, estado, createdAt, updatedAt);
+            this.paymentConfirmedAt = paymentConfirmedAt;
+        }
+
         public Long getSolicitudId() { return solicitudId; }
         public String getNroTramite() { return nroTramite; }
         public String getCuilConsultado() { return cuilConsultado; }
         public String getCircunscripcion() { return circunscripcion; }
         public String getEstado() { return estado; }
+        public LocalDateTime getPaymentConfirmedAt() { return paymentConfirmedAt; }
         public LocalDateTime getCreatedAt() { return createdAt; }
         public LocalDateTime getUpdatedAt() { return updatedAt; }
     }

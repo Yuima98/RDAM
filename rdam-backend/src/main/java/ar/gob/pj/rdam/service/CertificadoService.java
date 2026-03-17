@@ -1,5 +1,6 @@
 package ar.gob.pj.rdam.service;
 
+import ar.gob.pj.rdam.dto.SolicitudDTO;
 import ar.gob.pj.rdam.exception.BusinessException;
 import ar.gob.pj.rdam.exception.ResourceNotFoundException;
 import ar.gob.pj.rdam.model.Certificado;
@@ -27,17 +28,20 @@ public class CertificadoService {
     private static final Logger log = LoggerFactory.getLogger(CertificadoService.class);
 
     private final CertificadoRepository certificadoRepository;
-    private final SolicitudRepository solicitudRepository;
-    private final Path storagePath;
+    private final SolicitudRepository   solicitudRepository;
+    private final EmailService          emailService;
+    private final Path                  storagePath;
 
     public CertificadoService(
         CertificadoRepository certificadoRepository,
-        SolicitudRepository solicitudRepository,
+        SolicitudRepository   solicitudRepository,
+        EmailService          emailService,
         @Value("${rdam.storage.path}") String storagePath
     ) {
         this.certificadoRepository = certificadoRepository;
-        this.solicitudRepository = solicitudRepository;
-        this.storagePath = Paths.get(storagePath);
+        this.solicitudRepository   = solicitudRepository;
+        this.emailService          = emailService;
+        this.storagePath           = Paths.get(storagePath);
     }
 
     public Long subirCertificado(Long solicitudId, Long operadorId, MultipartFile file) {
@@ -106,11 +110,26 @@ public class CertificadoService {
         return filePath;
     }
 
-    /**
-     * Elimina el PDF del servidor cuando un certificado vence.
-     * Llamado por ExpiracionJob al procesar certificados vencidos.
-     * No lanza excepción si el archivo no existe — puede haber sido eliminado manualmente.
-     */
+    public void reenviarCertificado(Long solicitudId, Long ciudadanoId) {
+        Solicitud solicitud = solicitudRepository.findById(solicitudId)
+            .orElseThrow(() -> new ResourceNotFoundException("Solicitud no encontrada: " + solicitudId));
+        if (!solicitud.getCiudadanoId().equals(ciudadanoId)) {
+            throw new BusinessException("No tenes acceso a esta solicitud", 403);
+        }
+        if (!"publicada".equals(solicitud.getEstado())) {
+            throw new BusinessException("El certificado no está disponible para reenvío. Estado actual: " + solicitud.getEstado(), 400);
+        }
+        Certificado cert = certificadoRepository.findBySolicitudId(solicitudId)
+            .orElseThrow(() -> new ResourceNotFoundException("Certificado no encontrado para solicitud: " + solicitudId));
+        Path filePath = Paths.get(cert.getFilePath());
+        if (!Files.exists(filePath)) {
+            throw new BusinessException("El archivo no fue encontrado en el servidor", 500);
+        }
+        String nroTramite = SolicitudDTO.generarNroTramite(solicitudId, solicitud.getCreatedAt());
+        emailService.enviarCertificado(solicitud.getEmailContacto(), nroTramite, filePath);
+        log.info("Certificado {} reenviado a {}", nroTramite, solicitud.getEmailContacto());
+    }
+
     public void eliminarArchivo(Long solicitudId) {
         certificadoRepository.findBySolicitudId(solicitudId).ifPresent(cert -> {
             Path filePath = Paths.get(cert.getFilePath());
@@ -118,7 +137,6 @@ public class CertificadoService {
                 if (Files.exists(filePath)) {
                     Files.delete(filePath);
                     log.info("PDF eliminado: {}", filePath);
-                    // Intentar eliminar el directorio si quedó vacío
                     Path dir = filePath.getParent();
                     if (dir != null && Files.isDirectory(dir)) {
                         try (var stream = Files.list(dir)) {
