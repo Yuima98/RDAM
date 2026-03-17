@@ -6,9 +6,18 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 public class SolicitudDTO {
+
+    // ── Helper para generar número de trámite ─────────────────────────────────
+    // Formato: RDAM-YYYYMMDD-NNNN (ej: RDAM-20260316-0013)
+    public static String generarNroTramite(Long solicitudId, LocalDateTime createdAt) {
+        String fecha = createdAt.format(DateTimeFormatter.ofPattern("yyyyMMdd"));
+        String nro   = String.format("%04d", solicitudId);
+        return "RDAM-" + fecha + "-" + nro;
+    }
 
     public static class CreateRequest {
         @NotBlank(message = "El CUIL es obligatorio")
@@ -32,22 +41,26 @@ public class SolicitudDTO {
 
     public static class CreateResponse {
         private Long solicitudId;
+        private String nroTramite;
         private String estado;
         private LocalDateTime createdAt;
 
         public CreateResponse(Long solicitudId, String estado, LocalDateTime createdAt) {
             this.solicitudId = solicitudId;
-            this.estado = estado;
-            this.createdAt = createdAt;
+            this.nroTramite  = generarNroTramite(solicitudId, createdAt);
+            this.estado      = estado;
+            this.createdAt   = createdAt;
         }
 
         public Long getSolicitudId() { return solicitudId; }
+        public String getNroTramite() { return nroTramite; }
         public String getEstado() { return estado; }
         public LocalDateTime getCreatedAt() { return createdAt; }
     }
 
     public static class ListItem {
         private Long solicitudId;
+        private String nroTramite;
         private String cuilConsultado;
         private String circunscripcion;
         private String estado;
@@ -56,15 +69,17 @@ public class SolicitudDTO {
 
         public ListItem(Long solicitudId, String cuilConsultado, String circunscripcion,
                         String estado, LocalDateTime createdAt, LocalDateTime updatedAt) {
-            this.solicitudId = solicitudId;
+            this.solicitudId  = solicitudId;
+            this.nroTramite   = generarNroTramite(solicitudId, createdAt);
             this.cuilConsultado = cuilConsultado;
             this.circunscripcion = circunscripcion;
-            this.estado = estado;
-            this.createdAt = createdAt;
-            this.updatedAt = updatedAt;
+            this.estado       = estado;
+            this.createdAt    = createdAt;
+            this.updatedAt    = updatedAt;
         }
 
         public Long getSolicitudId() { return solicitudId; }
+        public String getNroTramite() { return nroTramite; }
         public String getCuilConsultado() { return cuilConsultado; }
         public String getCircunscripcion() { return circunscripcion; }
         public String getEstado() { return estado; }
@@ -77,7 +92,7 @@ public class SolicitudDTO {
         private Pagination pagination;
 
         public PagedResponse(List<ListItem> data, Pagination pagination) {
-            this.data = data;
+            this.data       = data;
             this.pagination = pagination;
         }
 
@@ -90,8 +105,8 @@ public class SolicitudDTO {
             private long total;
 
             public Pagination(int page, int size, long total) {
-                this.page = page;
-                this.size = size;
+                this.page  = page;
+                this.size  = size;
                 this.total = total;
             }
 
@@ -103,6 +118,7 @@ public class SolicitudDTO {
 
     public static class DetailResponse {
         private Long solicitudId;
+        private String nroTramite;
         private String cuilConsultado;
         private String circunscripcion;
         private String emailContacto;
@@ -113,16 +129,18 @@ public class SolicitudDTO {
         public DetailResponse(Long solicitudId, String cuilConsultado, String circunscripcion,
                               String emailContacto, String estado,
                               LocalDateTime paymentConfirmedAt, LocalDateTime createdAt) {
-            this.solicitudId = solicitudId;
-            this.cuilConsultado = cuilConsultado;
-            this.circunscripcion = circunscripcion;
-            this.emailContacto = emailContacto;
-            this.estado = estado;
+            this.solicitudId       = solicitudId;
+            this.nroTramite        = generarNroTramite(solicitudId, createdAt);
+            this.cuilConsultado    = cuilConsultado;
+            this.circunscripcion   = circunscripcion;
+            this.emailContacto     = emailContacto;
+            this.estado            = estado;
             this.paymentConfirmedAt = paymentConfirmedAt;
-            this.createdAt = createdAt;
+            this.createdAt         = createdAt;
         }
 
         public Long getSolicitudId() { return solicitudId; }
+        public String getNroTramite() { return nroTramite; }
         public String getCuilConsultado() { return cuilConsultado; }
         public String getCircunscripcion() { return circunscripcion; }
         public String getEmailContacto() { return emailContacto; }

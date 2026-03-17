@@ -4,7 +4,6 @@
 -- =============================================================================
 
 CREATE SCHEMA IF NOT EXISTS `rdam`
-    
     DEFAULT CHARACTER SET utf8mb4
     COLLATE utf8mb4_unicode_ci;
 
@@ -48,7 +47,7 @@ CREATE TABLE `solicitudes` (
     `circunscripcion_id`    TINYINT UNSIGNED    NOT NULL,
     `cuil_consultado`       VARCHAR(13)         NOT NULL,
     `email_contacto`        VARCHAR(255)        NOT NULL,
-    `estado`                ENUM('pendiente_pago','pagada','publicada','publicada_vencida','cancelada') NOT NULL DEFAULT 'pendiente_pago',
+    `estado`                ENUM('pendiente_pago','pagada','publicada','publicada_vencida','cancelada','vencida') NOT NULL DEFAULT 'pendiente_pago',
     `payment_external_id`   VARCHAR(255)        NULL DEFAULT NULL,
     `payment_confirmed_at`  DATETIME            NULL DEFAULT NULL,
     `created_at`            DATETIME            NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -111,15 +110,17 @@ INSERT INTO `users` (`id`, `email`, `password_hash`, `role`, `circunscripcion_id
 -- =============================================================================
 -- SOLICITUDES
 -- =============================================================================
-INSERT INTO `solicitudes` (`id`, `ciudadano_id`, `circunscripcion_id`, `cuil_consultado`, `email_contacto`, `estado`, `payment_external_id`, `payment_confirmed_at`) VALUES
-(1, 5, 1, '20-12345678-9', 'ciudadano_a@gmail.com', 'pendiente_pago', NULL,                  NULL),
-(2, 5, 1, '27-98765432-1', 'ciudadano_a@gmail.com', 'pagada',         'TXN-2-1772338091001', '2026-03-01 10:00:00'),
-(3, 5, 1, '30-11223344-5', 'ciudadano_a@gmail.com', 'publicada',      'TXN-3-1772338091002', '2026-02-15 09:00:00'),
-(4, 5, 1, '20-55667788-9', 'ciudadano_a@gmail.com', 'cancelada',      NULL,                  NULL),
-(5, 6, 1, '27-11223355-4', 'ciudadano_b@gmail.com', 'pendiente_pago', NULL,                  NULL),
-(6, 5, 2, '23-44556677-8', 'ciudadano_a@gmail.com', 'pendiente_pago', NULL,                  NULL),
-(7, 5, 1, '20-33445566-7', 'ciudadano_a@gmail.com', 'pagada',         'TXN-7-1772338091007', '2026-03-01 11:00:00'),
-(8, 5, 2, '27-44556677-8', 'ciudadano_a@gmail.com', 'pagada',         'TXN-8-1772338091008', '2026-03-01 12:00:00');
+INSERT INTO `solicitudes` (`id`, `ciudadano_id`, `circunscripcion_id`, `cuil_consultado`, `email_contacto`, `estado`, `payment_external_id`, `payment_confirmed_at`, `created_at`) VALUES
+(1,  5, 1, '20-12345678-9', 'ciudadano_a@gmail.com', 'pendiente_pago',   NULL,                  NULL,                  '2026-03-16 10:00:00'),
+(2,  5, 1, '27-98765432-1', 'ciudadano_a@gmail.com', 'pagada',           'TXN-2-1772338091001', '2026-03-01 10:00:00', '2026-03-01 09:00:00'),
+(3,  5, 1, '30-11223344-5', 'ciudadano_a@gmail.com', 'publicada',        'TXN-3-1772338091002', '2026-02-15 09:00:00', '2026-02-15 08:00:00'),
+(4,  5, 1, '20-55667788-9', 'ciudadano_a@gmail.com', 'cancelada',        NULL,                  NULL,                  '2026-03-10 10:00:00'),
+(5,  6, 1, '27-11223355-4', 'ciudadano_b@gmail.com', 'pendiente_pago',   NULL,                  NULL,                  '2026-03-16 10:00:00'),
+(6,  5, 2, '23-44556677-8', 'ciudadano_a@gmail.com', 'pendiente_pago',   NULL,                  NULL,                  '2026-03-16 10:00:00'),
+(7,  5, 1, '20-33445566-7', 'ciudadano_a@gmail.com', 'pagada',           'TXN-7-1772338091007', '2026-03-01 11:00:00', '2026-03-01 10:00:00'),
+(8,  5, 2, '27-44556677-8', 'ciudadano_a@gmail.com', 'pagada',           'TXN-8-1772338091008', '2026-03-01 12:00:00', '2026-03-01 11:00:00'),
+(9,  5, 1, '20-99887766-5', 'ciudadano_a@gmail.com', 'publicada_vencida','TXN-9-1772338091009', '2026-01-01 10:00:00', '2026-01-01 09:00:00'),
+(10, 5, 3, '23-11223344-5', 'ciudadano_a@gmail.com', 'vencida',          NULL,                  NULL,                  '2025-12-01 10:00:00');
 
 -- =============================================================================
 -- CERTIFICADOS
@@ -129,4 +130,9 @@ INSERT INTO `certificados` (`id`, `solicitud_id`, `operador_id`, `file_path`, `f
  'storage/3/cert_20260215_090000.pdf',
  'a3f1c2e4b5d6789012345678901234567890123456789012345678901234abcd',
  '2026-02-15 09:05:00',
- '2026-04-21 09:05:00');
+ '2026-04-21 09:05:00'),
+(2, 9, 2,
+ 'storage/9/cert_20260101_100000.pdf',
+ 'b4f2d3e5c6a7890123456789012345678901234567890123456789012345bcde',
+ '2026-01-01 10:05:00',
+ '2026-03-07 10:05:00');

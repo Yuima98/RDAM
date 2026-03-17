@@ -6,6 +6,8 @@ import ar.gob.pj.rdam.model.Certificado;
 import ar.gob.pj.rdam.model.Solicitud;
 import ar.gob.pj.rdam.repository.CertificadoRepository;
 import ar.gob.pj.rdam.repository.SolicitudRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -21,6 +23,8 @@ import java.util.HexFormat;
 
 @Service
 public class CertificadoService {
+
+    private static final Logger log = LoggerFactory.getLogger(CertificadoService.class);
 
     private final CertificadoRepository certificadoRepository;
     private final SolicitudRepository solicitudRepository;
@@ -50,7 +54,7 @@ public class CertificadoService {
             throw new BusinessException("Ya existe un certificado para esta solicitud", 400);
         }
         String fileName = "cert_" + solicitudId + "_" + System.currentTimeMillis() + ".pdf";
-        Path destDir = storagePath.resolve(String.valueOf(solicitudId));
+        Path destDir  = storagePath.resolve(String.valueOf(solicitudId));
         Path destFile = destDir.resolve(fileName);
         try {
             Files.createDirectories(destDir);
@@ -100,5 +104,31 @@ public class CertificadoService {
             throw new BusinessException("El archivo no fue encontrado en el servidor", 500);
         }
         return filePath;
+    }
+
+    /**
+     * Elimina el PDF del servidor cuando un certificado vence.
+     * Llamado por ExpiracionJob al procesar certificados vencidos.
+     * No lanza excepción si el archivo no existe — puede haber sido eliminado manualmente.
+     */
+    public void eliminarArchivo(Long solicitudId) {
+        certificadoRepository.findBySolicitudId(solicitudId).ifPresent(cert -> {
+            Path filePath = Paths.get(cert.getFilePath());
+            try {
+                if (Files.exists(filePath)) {
+                    Files.delete(filePath);
+                    log.info("PDF eliminado: {}", filePath);
+                    // Intentar eliminar el directorio si quedó vacío
+                    Path dir = filePath.getParent();
+                    if (dir != null && Files.isDirectory(dir)) {
+                        try (var stream = Files.list(dir)) {
+                            if (stream.findAny().isEmpty()) Files.delete(dir);
+                        }
+                    }
+                }
+            } catch (IOException e) {
+                log.warn("No se pudo eliminar el PDF de solicitud {}: {}", solicitudId, e.getMessage());
+            }
+        });
     }
 }

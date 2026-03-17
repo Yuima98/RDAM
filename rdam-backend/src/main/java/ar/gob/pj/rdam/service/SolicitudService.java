@@ -31,6 +31,15 @@ public class SolicitudService {
         if (!circunscripcionRepository.existsActiva(req.getCircunscripcionId())) {
             throw new BusinessException("La circunscripcion no existe o no esta activa", 400);
         }
+
+        // Validación de duplicados: no permitir nueva solicitud si ya existe una activa
+        // para el mismo ciudadano + CUIL + circunscripción
+        if (solicitudRepository.existeSolicitudActiva(ciudadanoId, req.getCuilConsultado())) {
+            throw new BusinessException(
+                "Ya existe una solicitud activa para ese CUIL y circunscripción. " +
+                "Podés consultarla desde 'Mis trámites'.", 409);
+        }
+
         Solicitud s = new Solicitud();
         s.setCiudadanoId(ciudadanoId);
         s.setCircunscripcionId(req.getCircunscripcionId());
@@ -59,7 +68,10 @@ public class SolicitudService {
         if (page < 1) page = 1;
         if (size > 100) size = 100;
         int offset = (page - 1) * size;
-        String estadoFiltro = (estado == null || estado.isBlank()) ? "pagada" : estado;
+        // Fix: si no viene estado, no filtrar (mostrar todos)
+        // Solo aplicar filtro por defecto de 'pagada' en SolicitudesActivasPage
+        // que lo envía explícitamente
+        String estadoFiltro = (estado == null || estado.isBlank()) ? null : estado;
         List<Solicitud> solicitudes = solicitudRepository.findAll(estadoFiltro, circunscripcionId, cuil, offset, size);
         long total = solicitudRepository.countAll(estadoFiltro, circunscripcionId, cuil);
         List<SolicitudDTO.ListItem> items = solicitudes.stream()

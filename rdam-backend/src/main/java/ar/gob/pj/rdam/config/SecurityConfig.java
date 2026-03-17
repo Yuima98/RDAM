@@ -30,6 +30,7 @@ public class SecurityConfig {
             .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers("/api/v1/auth/**").permitAll()
+                .requestMatchers("/api/v1/dev/**").permitAll()
                 .requestMatchers(HttpMethod.GET, "/api/v1/circunscripciones").permitAll()
                 .requestMatchers("/health").permitAll()
                 .requestMatchers("/api/v1/pagos/webhook").permitAll()

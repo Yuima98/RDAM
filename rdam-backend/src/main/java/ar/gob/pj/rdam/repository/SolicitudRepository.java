@@ -120,4 +120,37 @@ public class SolicitudRepository {
     public List<Map<String, Object>> findAllCircunscripciones() {
         return jdbc.queryForList("SELECT id, nombre FROM circunscripciones WHERE is_active = 1 ORDER BY id");
     }
+
+    // ── Métodos para jobs de expiración ───────────────────────────────────────
+
+    /**
+     * Devuelve IDs de solicitudes en estado pendiente_pago cuyo created_at
+     * supera el límite de días sin pagar. Usado por el job de vencimiento de pago.
+     */
+    public List<Long> findIdsPendientesPagoVencidos(int diasLimite) {
+        String sql = "SELECT id FROM solicitudes WHERE estado = 'pendiente_pago' AND created_at <= DATE_SUB(NOW(), INTERVAL ? DAY)";
+        return jdbc.queryForList(sql, Long.class, diasLimite);
+    }
+
+    /**
+     * Devuelve IDs de solicitudes en estado publicada cuyo certificado
+     * tiene vence_at en el pasado. Usado por el job de expiración de certificados.
+     */
+    public List<Long> findIdsPublicadasConCertificadoVencido() {
+        String sql = "SELECT s.id FROM solicitudes s JOIN certificados c ON c.solicitud_id = s.id WHERE s.estado = 'publicada' AND c.vence_at < NOW()";
+        return jdbc.queryForList(sql, Long.class);
+    }
+
+    // ── Validación de duplicados ───────────────────────────────────────────────
+
+    /**
+     * Verifica si existe una solicitud activa (pendiente_pago, pagada o publicada)
+     * para el mismo ciudadano, CUIL y circunscripción.
+     * Impide que un ciudadano solicite el mismo certificado si ya tiene uno vigente.
+     */
+    public boolean existeSolicitudActiva(Long ciudadanoId, String cuilConsultado) {
+        String sql = "SELECT COUNT(*) FROM solicitudes WHERE ciudadano_id = ? AND cuil_consultado = ? AND estado IN ('pendiente_pago', 'pagada', 'publicada')";
+        Long count = jdbc.queryForObject(sql, Long.class, ciudadanoId, cuilConsultado);
+        return count != null && count > 0;
+    }
 }
