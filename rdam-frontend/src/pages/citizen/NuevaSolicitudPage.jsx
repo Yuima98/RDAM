@@ -19,7 +19,9 @@
  *   PlusPagos redirige de vuelta a /pago/exitoso o /pago/error.
  */
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
+
+const RECAPTCHA_SITE_KEY = '6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import solicitudService from '../../api/solicitudService';
@@ -213,7 +215,47 @@ function Paso1({ form, setForm, onNext }) {
 
 // ── Paso 2: Confirmación ───────────────────────────────────────────────────
 
-function Paso2({ form, circunscripciones, onBack, onConfirm, loading, error }) {
+function Paso2({ form, circunscripciones, onBack, onConfirm, loading, error, onRecaptcha, recaptchaToken }) {
+  const recaptchaRef = useRef(null);
+  const isDev = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+
+  useEffect(() => {
+    let widgetId = null;
+
+    const renderWidget = () => {
+      if (!recaptchaRef.current) return;
+      try {
+        // Si el div ya tiene contenido (StrictMode doble mount), limpiar primero
+        recaptchaRef.current.innerHTML = '';
+        widgetId = window.grecaptcha.render(recaptchaRef.current, {
+          sitekey: RECAPTCHA_SITE_KEY,
+          callback: onRecaptcha,
+          'expired-callback': () => onRecaptcha(''),
+        });
+      } catch (e) {
+        // Widget ya renderizado — hacer reset
+        try { window.grecaptcha.reset(); } catch (_) {}
+      }
+    };
+
+    if (window.grecaptcha && window.grecaptcha.render) {
+      renderWidget();
+    } else {
+      const interval = setInterval(() => {
+        if (window.grecaptcha && window.grecaptcha.render) {
+          clearInterval(interval);
+          renderWidget();
+        }
+      }, 50);
+      setTimeout(() => clearInterval(interval), 5000);
+    }
+
+    return () => {
+      try { if (widgetId !== null) window.grecaptcha.reset(widgetId); } catch (_) {}
+      if (recaptchaRef.current) recaptchaRef.current.innerHTML = '';
+      onRecaptcha('');
+    };
+  }, []);
   const circNombre = circunscripciones.find((c) => String(c.id) === String(form.circunscripcionId))?.nombre ?? '—';
 
   const fila = (label, value, mono = false) => (
@@ -271,11 +313,22 @@ function Paso2({ form, circunscripciones, onBack, onConfirm, loading, error }) {
         </div>
       )}
 
+      {/* reCAPTCHA — solo se muestra en prod */}
+      {!isDev && (
+        <div style={{ marginBottom: 20, display: 'flex', justifyContent: 'center' }}>
+          <div ref={recaptchaRef} />
+        </div>
+      )}
+
       <div style={{ display: 'flex', justifyContent: 'space-between' }}>
         <button style={btnSecondary} onClick={onBack} disabled={loading}>
           ← Volver
         </button>
-        <button style={{ ...btnPrimary, opacity: loading ? .7 : 1 }} onClick={onConfirm} disabled={loading}>
+        <button
+          style={{ ...btnPrimary, opacity: (loading || (!recaptchaToken && !isDev)) ? .7 : 1 }}
+          onClick={onConfirm}
+          disabled={loading || (!recaptchaToken && !isDev)}
+        >
           {loading ? 'Procesando...' : 'Confirmar y pagar'}
         </button>
       </div>
@@ -321,8 +374,9 @@ export default function NuevaSolicitudPage() {
     circunscripcionId: '',
     emailContacto:    '',
   });
-  const [loading, setLoading] = useState(false);
-  const [error,   setError]   = useState('');
+  const [loading,        setLoading]        = useState(false);
+  const [error,          setError]          = useState('');
+  const [recaptchaToken, setRecaptchaToken] = useState('');
 
   // Cargamos circunscripciones aquí también para tenerlas en el paso 2
   useEffect(() => {
@@ -338,6 +392,7 @@ export default function NuevaSolicitudPage() {
         cuilConsultado:    form.cuilConsultado,
         circunscripcionId: Number(form.circunscripcionId),
         emailContacto:     form.emailContacto,
+        recaptchaToken:    recaptchaToken,
       });
 
       // Paso 2: iniciar el pago
@@ -405,10 +460,12 @@ export default function NuevaSolicitudPage() {
           <Paso2
             form={form}
             circunscripciones={circunscripciones}
-            onBack={() => { setError(''); setStep(0); }}
+            onBack={() => { setError(''); setStep(0); setRecaptchaToken(''); }}
             onConfirm={handleConfirm}
             loading={loading}
             error={error}
+            onRecaptcha={setRecaptchaToken}
+            recaptchaToken={recaptchaToken}
           />
         )}
         {step === 2 && <Paso3 />}
