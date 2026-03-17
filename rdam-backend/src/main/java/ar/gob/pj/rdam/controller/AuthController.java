@@ -25,15 +25,15 @@ public class AuthController {
     }
 
     // POST /api/v1/auth/register
+    // Dev: devuelve OTP en el response (skipEmail=true en application-dev.properties)
+    // Prod: solo envía el OTP por email, response sin body
     @PostMapping("/register")
     public ResponseEntity<?> register(@Valid @RequestBody AuthDTO.RegisterRequest req) {
-    // TODO [TESTING] — En producción: revertir register() a void y retornar ResponseEntity<Void> directamente.
         if ("dev".equals(activeProfile)) {
             String otp = authService.register(req);
             return ResponseEntity.status(HttpStatus.CREATED)
                 .body(new AuthDTO.RegisterDevResponse(otp));
         }
-
         authService.register(req);
         return ResponseEntity.status(HttpStatus.CREATED).build();
 }

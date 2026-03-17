@@ -31,12 +31,16 @@ public class SolicitudDTO {
         @Email(message = "El email de contacto no es valido")
         private String emailContacto;
 
+        private String recaptchaToken;
+
         public String getCuilConsultado() { return cuilConsultado; }
         public void setCuilConsultado(String v) { this.cuilConsultado = v; }
         public Integer getCircunscripcionId() { return circunscripcionId; }
         public void setCircunscripcionId(Integer v) { this.circunscripcionId = v; }
         public String getEmailContacto() { return emailContacto; }
         public void setEmailContacto(String v) { this.emailContacto = v; }
+        public String getRecaptchaToken() { return recaptchaToken; }
+        public void setRecaptchaToken(String v) { this.recaptchaToken = v; }
     }
 
     public static class CreateResponse {

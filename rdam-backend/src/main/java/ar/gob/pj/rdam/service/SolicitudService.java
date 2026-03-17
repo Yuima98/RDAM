@@ -16,11 +16,14 @@ public class SolicitudService {
 
     private final SolicitudRepository solicitudRepository;
     private final CircunscripcionRepository circunscripcionRepository;
+    private final RecaptchaService recaptchaService;
 
     public SolicitudService(SolicitudRepository solicitudRepository,
-                            CircunscripcionRepository circunscripcionRepository) {
+                            CircunscripcionRepository circunscripcionRepository,
+                            RecaptchaService recaptchaService) {
         this.solicitudRepository = solicitudRepository;
         this.circunscripcionRepository = circunscripcionRepository;
+        this.recaptchaService = recaptchaService;
     }
 
     public List<Map<String, Object>> listarCircunscripciones() {
@@ -28,6 +31,7 @@ public class SolicitudService {
     }
 
     public SolicitudDTO.CreateResponse crear(SolicitudDTO.CreateRequest req, Long ciudadanoId) {
+        recaptchaService.validar(req.getRecaptchaToken());
         if (!circunscripcionRepository.existsActiva(req.getCircunscripcionId())) {
             throw new BusinessException("La circunscripcion no existe o no esta activa", 400);
         }
