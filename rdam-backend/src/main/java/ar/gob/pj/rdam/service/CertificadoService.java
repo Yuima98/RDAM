@@ -86,6 +86,16 @@ public class CertificadoService {
         cert.setVenceAt(now.plusDays(65));
         Long certId = certificadoRepository.insert(cert);
         solicitudRepository.updateEstado(solicitudId, "publicada");
+
+        // Notificar al ciudadano por email (RF-014)
+        try {
+            String nroTramite = SolicitudDTO.generarNroTramite(solicitudId, solicitud.getCreatedAt());
+            emailService.enviarCertificado(solicitud.getEmailContacto(), nroTramite, destFile);
+        } catch (Exception e) {
+            // El certificado ya fue publicado — el error de email no debe revertir la operación
+            log.warn("No se pudo enviar email de notificación para solicitud {}: {}", solicitudId, e.getMessage());
+        }
+
         return certId;
     }
 

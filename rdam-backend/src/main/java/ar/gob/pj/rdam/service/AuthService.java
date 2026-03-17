@@ -5,8 +5,8 @@ import ar.gob.pj.rdam.exception.BusinessException;
 import ar.gob.pj.rdam.model.User;
 import ar.gob.pj.rdam.repository.UserRepository;
 import ar.gob.pj.rdam.security.JwtService;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.security.SecureRandom;
@@ -23,9 +23,8 @@ public class AuthService {
     private final EmailService emailService;
     private final SecureRandom random = new SecureRandom();
 
-    // TODO [TESTING] — En producción eliminar esta variable y la condición en register().
-    @Value("${spring.profiles.active:prod}")
-    private String activeProfile;
+    @Value("${rdam.dev.skip-email:false}")
+    private boolean skipEmail;
 
     public AuthService(UserRepository userRepository,
                        JwtService jwtService,
@@ -67,13 +66,13 @@ public class AuthService {
         LocalDateTime expiresAt = LocalDateTime.now().plusMinutes(OTP_EXPIRATION_MINUTES);
         userRepository.saveOtp(userId, otp, expiresAt);
 
-        // TODO [TESTING] — En producción eliminar la condición y dejar solo emailService.enviarOtp(email, otp)
-        if (!"dev".equals(activeProfile)) {
+        if (!skipEmail) {
             emailService.enviarOtp(email, otp);
         }
 
-        // TODO [TESTING] — En producción reemplazar por: return; (void)
-        return otp;
+        // En perfil dev, exponer el OTP en el response para facilitar testing
+        // En prod, skipEmail=false así siempre envía el mail y retorna null
+        return skipEmail ? otp : null;
     }
 
     // ── Verify OTP (ciudadano) ────────────────────────────────────────────────
