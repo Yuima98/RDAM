@@ -14,12 +14,13 @@ import solicitudService from '../../api/solicitudService';
 import Badge from '../../components/ui/Badge';
 
 const ESTADOS = [
-  { value: '',               label: 'Todos'          },
-  { value: 'pagada',         label: 'Pagada'         },
-  { value: 'publicada',      label: 'Publicada'      },
-  { value: 'publicada_vencida', label: 'Vencida'     },
-  { value: 'cancelada',      label: 'Cancelada'      },
-  { value: 'pendiente_pago', label: 'Pendiente pago' },
+  { value: '',               label: 'Todos'             },
+  { value: 'pagada',         label: 'Pagada'            },
+  { value: 'publicada',      label: 'Publicada'         },
+  { value: 'publicada_vencida', label: 'Publicado vencido' },
+  { value: 'vencida',        label: 'Pago expirado'     },
+  { value: 'cancelada',      label: 'Cancelada'         },
+  { value: 'pendiente_pago', label: 'Pendiente de pago' },
 ];
 
 const PAGE_SIZE = 20;
@@ -174,7 +175,7 @@ export default function HistorialInternoPage() {
           <table style={{ width: '100%', borderCollapse: 'collapse' }}>
             <thead>
               <tr style={{ background: 'var(--gray-50)' }}>
-                {['#', 'CUIL consultado', 'Circunscripción', 'Estado', 'Creada', 'Actualizada'].map((h) => (
+                {['N° Trámite', 'CUIL consultado', 'Circunscripción', 'Estado', 'Creada', 'Actualizada'].map((h) => (
                   <th key={h} style={{
                     padding: '10px 16px', textAlign: 'left',
                     fontSize: 11.5, fontWeight: 700, color: 'var(--gray-500)',
@@ -208,7 +209,7 @@ export default function HistorialInternoPage() {
                     onMouseEnter={(e) => e.currentTarget.style.background = 'var(--gray-50)'}
                     onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
                   >
-                    <td style={{ padding: '13px 16px', fontFamily: 'var(--mono)', fontSize: 12.5, color: 'var(--gray-500)' }}>#{s.solicitudId}</td>
+                    <td style={{ padding: '13px 16px', fontFamily: 'var(--mono)', fontSize: 12, color: 'var(--gray-500)' }}>{s.nroTramite}</td>
                     <td style={{ padding: '13px 16px', fontFamily: 'var(--mono)', fontSize: 13 }}>{s.cuilConsultado}</td>
                     <td style={{ padding: '13px 16px', fontSize: 13, color: 'var(--gray-700)' }}>{s.circunscripcion}</td>
                     <td style={{ padding: '13px 16px' }}><Badge estado={s.estado} /></td>

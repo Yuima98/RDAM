@@ -150,7 +150,7 @@ export default function SolicitudesActivasPage() {
           <table style={{ width: '100%', borderCollapse: 'collapse' }}>
             <thead>
               <tr style={{ background: 'var(--gray-50)' }}>
-                {['#', 'CUIL consultado', 'Circunscripción', 'Estado', 'Fecha pago'].map((h) => (
+                {['N° Trámite', 'CUIL consultado', 'Circunscripción', 'Estado', 'Fecha pago'].map((h) => (
                   <th key={h} style={{
                     padding: '10px 16px', textAlign: 'left',
                     fontSize: 11.5, fontWeight: 700, color: 'var(--gray-500)',
@@ -186,8 +186,8 @@ export default function SolicitudesActivasPage() {
                     onMouseEnter={(e) => e.currentTarget.style.background = 'var(--gray-50)'}
                     onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
                   >
-                    <td style={{ padding: '13px 16px', fontFamily: 'var(--mono)', fontSize: 12.5, color: 'var(--gray-500)' }}>
-                      #{s.solicitudId}
+                    <td style={{ padding: '13px 16px', fontFamily: 'var(--mono)', fontSize: 12, color: 'var(--gray-500)' }}>
+                      {s.nroTramite}
                     </td>
                     <td style={{ padding: '13px 16px', fontFamily: 'var(--mono)', fontSize: 13 }}>
                       {s.cuilConsultado}

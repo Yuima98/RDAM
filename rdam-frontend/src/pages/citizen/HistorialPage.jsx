@@ -4,7 +4,7 @@
  * Lista paginada de todas las solicitudes del ciudadano autenticado.
  *
  * Funcionalidades:
- *   - Filtro por estado (todos / pendiente / pagada / publicada / rechazada)
+ *   - Filtro por estado (todos / pendiente_pago / pagada / publicada / cancelada)
  *   - Paginación con controles anterior/siguiente
  *   - Click en fila → navega a /ciudadano/tramites/:id
  *   - Skeleton de carga y empty state
@@ -19,11 +19,13 @@ import solicitudService from '../../api/solicitudService';
 import Badge from '../../components/ui/Badge';
 
 const ESTADOS = [
-  { value: '',          label: 'Todos'     },
-  { value: 'pendiente', label: 'Pendiente' },
-  { value: 'pagada',    label: 'Pagada'    },
-  { value: 'publicada', label: 'Publicada' },
-  { value: 'rechazada', label: 'Rechazada' },
+  { value: '',               label: 'Todos'             },
+  { value: 'pendiente_pago', label: 'Pendiente de pago' },
+  { value: 'pagada',         label: 'Pagada'            },
+  { value: 'publicada',      label: 'Publicada'         },
+  { value: 'publicada_vencida', label: 'Publicado vencido' },
+  { value: 'vencida',        label: 'Pago expirado'     },
+  { value: 'cancelada',      label: 'Cancelada'         },
 ];
 
 const PAGE_SIZE = 10;
@@ -138,7 +140,7 @@ export default function HistorialPage() {
           <table style={{ width: '100%', borderCollapse: 'collapse' }}>
             <thead>
               <tr style={{ background: 'var(--gray-50)' }}>
-                {['#', 'CUIL consultado', 'Circunscripción', 'Estado', 'Creada', 'Actualizada'].map((h) => (
+                {['N° Trámite', 'CUIL consultado', 'Circunscripción', 'Estado', 'Creada', 'Actualizada'].map((h) => (
                   <th key={h} style={{
                     padding: '10px 16px', textAlign: 'left',
                     fontSize: 11.5, fontWeight: 700, color: 'var(--gray-500)',
@@ -189,8 +191,8 @@ export default function HistorialPage() {
                     onMouseEnter={(e) => e.currentTarget.style.background = 'var(--gray-50)'}
                     onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
                   >
-                    <td style={{ padding: '13px 16px', fontFamily: 'var(--mono)', fontSize: 12.5, color: 'var(--gray-500)' }}>
-                      #{s.solicitudId}
+                    <td style={{ padding: '13px 16px', fontFamily: 'var(--mono)', fontSize: 12, color: 'var(--gray-500)' }}>
+                      {s.nroTramite}
                     </td>
                     <td style={{ padding: '13px 16px', fontFamily: 'var(--mono)', fontSize: 13 }}>
                       {s.cuilConsultado}

@@ -26,7 +26,7 @@ function formatDate(iso) {
   });
 }
 
-export default function DetalleInternoPage() {
+export default function DetalleInternaPage() {
   const { id }    = useParams();
   const navigate  = useNavigate();
   const { token } = useAuth();
@@ -137,7 +137,7 @@ export default function DetalleInternoPage() {
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 28, flexWrap: 'wrap', gap: 12 }}>
         <div>
           <h1 style={{ fontSize: 22, fontWeight: 700, color: 'var(--gray-900)', marginBottom: 4 }}>
-            Solicitud #{solicitud.solicitudId}
+            {solicitud.nroTramite}
           </h1>
           <p style={{ fontSize: 13.5, color: 'var(--gray-500)' }}>
             Creada el {formatDate(solicitud.createdAt)}

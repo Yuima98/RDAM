@@ -41,22 +41,34 @@ const TIMELINE_STEPS = [
 const ESTADO_ORDER = { pendiente_pago: 0, pagada: 1, publicada: 2 };
 
 function Timeline({ estado }) {
-  const isTerminal = estado === 'cancelada' || estado === 'publicada_vencida';
+  const isTerminal = estado === 'cancelada' || estado === 'publicada_vencida' || estado === 'vencida';
   const currentIdx = ESTADO_ORDER[estado] ?? 0;
 
   if (isTerminal) {
-    const isCancelada = estado === 'cancelada';
+    const isCancelada      = estado === 'cancelada';
+    const isVencida        = estado === 'vencida';
+    const isPublicadaVenc  = estado === 'publicada_vencida';
+
+    const bgColor    = isCancelada ? 'var(--accent-light)' : isVencida ? 'var(--gray-100)' : 'var(--warning-light)';
+    const borderColor = isCancelada ? 'rgba(200,16,46,.2)' : isVencida ? 'var(--gray-200)' : 'rgba(180,83,9,.2)';
+    const iconColor  = isCancelada ? 'var(--accent)' : isVencida ? 'var(--gray-500)' : 'var(--warning)';
+    const title      = isCancelada ? 'Solicitud cancelada' : isVencida ? 'Pago expirado' : 'Certificado vencido';
+    const desc       = isCancelada
+      ? 'Tu solicitud fue cancelada por pago rechazado. Podés iniciar una nueva si lo necesitás.'
+      : isVencida
+      ? 'El plazo para completar el pago venció. Podés iniciar una nueva solicitud.'
+      : 'El certificado venció. Podés solicitar uno nuevo.';
+
     return (
       <div style={{
         display: 'flex', alignItems: 'flex-start', gap: 14,
         padding: '16px 20px',
-        background: isCancelada ? 'var(--accent-light)' : 'var(--warning-light)',
-        borderRadius: 'var(--radius)',
-        border: `1px solid ${isCancelada ? 'rgba(200,16,46,.2)' : 'rgba(180,83,9,.2)'}`,
+        background: bgColor, borderRadius: 'var(--radius)',
+        border: `1px solid ${borderColor}`,
       }}>
         <div style={{
           width: 32, height: 32, borderRadius: '50%', flexShrink: 0,
-          background: isCancelada ? 'var(--accent)' : 'var(--warning)',
+          background: iconColor,
           display: 'flex', alignItems: 'center', justifyContent: 'center',
         }}>
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2.5">
@@ -65,14 +77,8 @@ function Timeline({ estado }) {
           </svg>
         </div>
         <div>
-          <div style={{ fontWeight: 700, color: isCancelada ? 'var(--accent)' : 'var(--warning)', marginBottom: 2 }}>
-            {isCancelada ? 'Solicitud cancelada' : 'Certificado vencido'}
-          </div>
-          <div style={{ fontSize: 13, color: 'var(--gray-600)' }}>
-            {isCancelada
-              ? 'Tu solicitud fue cancelada. Podés iniciar una nueva si lo necesitás.'
-              : 'El certificado venció. Podés solicitar uno nuevo.'}
-          </div>
+          <div style={{ fontWeight: 700, color: iconColor, marginBottom: 2 }}>{title}</div>
+          <div style={{ fontSize: 13, color: 'var(--gray-600)' }}>{desc}</div>
         </div>
       </div>
     );
@@ -259,7 +265,7 @@ export default function DetalleSolicitudPage() {
       }}>
         <div>
           <h1 style={{ fontSize: 22, fontWeight: 700, color: 'var(--gray-900)', marginBottom: 4 }}>
-            Solicitud #{solicitud.solicitudId}
+            {solicitud.nroTramite}
           </h1>
           <p style={{ fontSize: 13.5, color: 'var(--gray-500)' }}>
             Creada el {formatDate(solicitud.createdAt)}
@@ -353,6 +359,49 @@ export default function DetalleSolicitudPage() {
           >
             Nueva solicitud
           </a>
+        </div>
+      )}
+
+      {solicitud.estado === 'vencida' && (
+        <div style={{
+          background: 'var(--gray-100)', border: '1px solid var(--gray-200)',
+          borderRadius: 'var(--radius)', padding: '20px 24px',
+          display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+          flexWrap: 'wrap', gap: 12,
+        }}>
+          <div>
+            <div style={{ fontSize: 15, fontWeight: 700, color: 'var(--gray-600)', marginBottom: 4 }}>
+              Pago expirado
+            </div>
+            <div style={{ fontSize: 13, color: 'var(--gray-600)' }}>
+              El plazo para completar el pago venció. Para obtener el certificado debés iniciar una nueva solicitud.
+            </div>
+          </div>
+          <a
+            href="/ciudadano/nueva"
+            style={{
+              display: 'inline-flex', alignItems: 'center', gap: 8,
+              padding: '10px 20px', borderRadius: 'var(--radius-sm)',
+              background: 'var(--gray-600)', color: '#fff', textDecoration: 'none',
+              fontFamily: 'var(--font)', fontSize: 14, fontWeight: 600,
+            }}
+          >
+            Nueva solicitud
+          </a>
+        </div>
+      )}
+
+      {solicitud.estado === 'publicada_vencida' && (
+        <div style={{
+          background: 'var(--warning-light)', border: '1px solid rgba(180,83,9,.2)',
+          borderRadius: 'var(--radius)', padding: '20px 24px',
+        }}>
+          <div style={{ fontSize: 15, fontWeight: 700, color: 'var(--warning)', marginBottom: 4 }}>
+            Certificado vencido
+          </div>
+          <div style={{ fontSize: 13, color: 'var(--gray-600)' }}>
+            El certificado venció a los 65 días de su emisión y ya no tiene validez. Si lo necesitás vigente, iniciá una nueva solicitud.
+          </div>
         </div>
       )}
 
