@@ -63,32 +63,39 @@ public class SolicitudRepository {
         return results.isEmpty() ? Optional.empty() : Optional.of(results.get(0));
     }
 
-    public List<Solicitud> findByCiudadano(Long ciudadanoId, String estado, int offset, int size) {
+    public List<Solicitud> findByCiudadano(Long ciudadanoId, String estado, String cuil, int offset, int size) {
         List<Object> params = new ArrayList<>();
         StringBuilder sql = new StringBuilder("SELECT s.*, c.nombre AS circunscripcion_nombre FROM solicitudes s JOIN circunscripciones c ON c.id = s.circunscripcion_id WHERE s.ciudadano_id = ?");
         params.add(ciudadanoId);
         if (estado != null && !estado.isBlank()) { sql.append(" AND s.estado = ?"); params.add(estado); }
+        if (cuil != null && !cuil.isBlank()) { sql.append(" AND s.cuil_consultado = ?"); params.add(cuil); }
         sql.append(" ORDER BY s.created_at DESC LIMIT ? OFFSET ?");
         params.add(size); params.add(offset);
         return jdbc.query(sql.toString(), rowMapper, params.toArray());
     }
 
-    public long countByCiudadano(Long ciudadanoId, String estado) {
+    public long countByCiudadano(Long ciudadanoId, String estado, String cuil) {
         List<Object> params = new ArrayList<>();
         StringBuilder sql = new StringBuilder("SELECT COUNT(*) FROM solicitudes WHERE ciudadano_id = ?");
         params.add(ciudadanoId);
         if (estado != null && !estado.isBlank()) { sql.append(" AND estado = ?"); params.add(estado); }
+        if (cuil != null && !cuil.isBlank()) { sql.append(" AND cuil_consultado = ?"); params.add(cuil); }
         Long count = jdbc.queryForObject(sql.toString(), Long.class, params.toArray());
         return count != null ? count : 0L;
     }
 
-    public List<Solicitud> findAll(String estado, Integer circunscripcionId, String cuil, int offset, int size) {
+    public List<Solicitud> findAll(String estado, Integer circunscripcionId, String cuil, String sort, int offset, int size) {
         List<Object> params = new ArrayList<>();
         StringBuilder sql = new StringBuilder("SELECT s.*, c.nombre AS circunscripcion_nombre FROM solicitudes s JOIN circunscripciones c ON c.id = s.circunscripcion_id WHERE 1=1");
         if (estado != null && !estado.isBlank()) { sql.append(" AND s.estado = ?"); params.add(estado); }
         if (circunscripcionId != null) { sql.append(" AND s.circunscripcion_id = ?"); params.add(circunscripcionId); }
         if (cuil != null && !cuil.isBlank()) { sql.append(" AND s.cuil_consultado = ?"); params.add(cuil); }
-        sql.append(" ORDER BY s.created_at DESC LIMIT ? OFFSET ?");
+        // Orden configurable: por defecto created_at DESC, opcionalmente payment_confirmed_at ASC
+        if ("payment_confirmed_at_asc".equals(sort)) {
+            sql.append(" ORDER BY s.payment_confirmed_at ASC LIMIT ? OFFSET ?");
+        } else {
+            sql.append(" ORDER BY s.created_at DESC LIMIT ? OFFSET ?");
+        }
         params.add(size); params.add(offset);
         return jdbc.query(sql.toString(), rowMapper, params.toArray());
     }

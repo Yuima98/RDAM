@@ -51,12 +51,12 @@ public class SolicitudService {
         return new SolicitudDTO.CreateResponse(created.getId(), created.getEstado(), created.getCreatedAt());
     }
 
-    public SolicitudDTO.PagedResponse listarPorCiudadano(Long ciudadanoId, String estado, int page, int size) {
+    public SolicitudDTO.PagedResponse listarPorCiudadano(Long ciudadanoId, String estado, String cuil, int page, int size) {
         if (page < 1) page = 1;
         if (size > 50) size = 50;
         int offset = (page - 1) * size;
-        List<Solicitud> solicitudes = solicitudRepository.findByCiudadano(ciudadanoId, estado, offset, size);
-        long total = solicitudRepository.countByCiudadano(ciudadanoId, estado);
+        List<Solicitud> solicitudes = solicitudRepository.findByCiudadano(ciudadanoId, estado, cuil, offset, size);
+        long total = solicitudRepository.countByCiudadano(ciudadanoId, estado, cuil);
         List<SolicitudDTO.ListItem> items = solicitudes.stream()
             .map(s -> new SolicitudDTO.ListItem(s.getId(), s.getCuilConsultado(),
                 s.getCircunscripcionNombre(), s.getEstado(), s.getPaymentConfirmedAt(),
@@ -65,15 +65,12 @@ public class SolicitudService {
         return new SolicitudDTO.PagedResponse(items, new SolicitudDTO.PagedResponse.Pagination(page, size, total));
     }
 
-    public SolicitudDTO.PagedResponse listarTodas(String estado, Integer circunscripcionId, String cuil, int page, int size) {
+    public SolicitudDTO.PagedResponse listarTodas(String estado, Integer circunscripcionId, String cuil, String sort, int page, int size) {
         if (page < 1) page = 1;
         if (size > 100) size = 100;
         int offset = (page - 1) * size;
-        // Fix: si no viene estado, no filtrar (mostrar todos)
-        // Solo aplicar filtro por defecto de 'pagada' en SolicitudesActivasPage
-        // que lo envía explícitamente
         String estadoFiltro = (estado == null || estado.isBlank()) ? null : estado;
-        List<Solicitud> solicitudes = solicitudRepository.findAll(estadoFiltro, circunscripcionId, cuil, offset, size);
+        List<Solicitud> solicitudes = solicitudRepository.findAll(estadoFiltro, circunscripcionId, cuil, sort, offset, size);
         long total = solicitudRepository.countAll(estadoFiltro, circunscripcionId, cuil);
         List<SolicitudDTO.ListItem> items = solicitudes.stream()
             .map(s -> new SolicitudDTO.ListItem(s.getId(), s.getCuilConsultado(),
@@ -102,4 +99,4 @@ public class SolicitudService {
         }
         return s;
     }
-}   
+}

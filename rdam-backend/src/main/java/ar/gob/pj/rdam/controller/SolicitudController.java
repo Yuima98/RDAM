@@ -28,27 +28,28 @@ public class SolicitudController {
     }
 
     @PostMapping("/api/v1/solicitudes")
-public ResponseEntity<SolicitudDTO.CreateResponse> crear(
-    @Valid @RequestBody SolicitudDTO.CreateRequest req,
-    Authentication auth
-) {
-    String role = auth.getAuthorities().iterator().next().getAuthority().replace("ROLE_", "").toLowerCase();
-    if (!"citizen".equals(role)) {
-        throw new BusinessException("No tenes permiso para acceder a este recurso", 403);
+    public ResponseEntity<SolicitudDTO.CreateResponse> crear(
+        @Valid @RequestBody SolicitudDTO.CreateRequest req,
+        Authentication auth
+    ) {
+        String role = auth.getAuthorities().iterator().next().getAuthority().replace("ROLE_", "").toLowerCase();
+        if (!"citizen".equals(role)) {
+            throw new BusinessException("No tenes permiso para acceder a este recurso", 403);
+        }
+        Long ciudadanoId = (Long) auth.getPrincipal();
+        return ResponseEntity.status(HttpStatus.CREATED).body(solicitudService.crear(req, ciudadanoId));
     }
-    Long ciudadanoId = (Long) auth.getPrincipal();
-    return ResponseEntity.status(HttpStatus.CREATED).body(solicitudService.crear(req, ciudadanoId));
-}
 
     @GetMapping("/api/v1/solicitudes")
     public ResponseEntity<SolicitudDTO.PagedResponse> listar(
         @RequestParam(required = false) String estado,
+        @RequestParam(required = false) String cuil,
         @RequestParam(defaultValue = "1") int page,
         @RequestParam(defaultValue = "10") int size,
         Authentication auth
     ) {
         Long ciudadanoId = (Long) auth.getPrincipal();
-        return ResponseEntity.ok(solicitudService.listarPorCiudadano(ciudadanoId, estado, page, size));
+        return ResponseEntity.ok(solicitudService.listarPorCiudadano(ciudadanoId, estado, cuil, page, size));
     }
 
     @GetMapping("/api/v1/solicitudes/{solicitudId}")
@@ -72,12 +73,13 @@ public ResponseEntity<SolicitudDTO.CreateResponse> crear(
     public ResponseEntity<SolicitudDTO.PagedResponse> listarInterno(
         @RequestParam(required = false) String estado,
         @RequestParam(required = false) String cuil,
+        @RequestParam(required = false) String sort,
         @RequestParam(defaultValue = "1") int page,
         @RequestParam(defaultValue = "20") int size,
         HttpServletRequest request,
         Authentication auth
     ) {
         Integer circunscripcionId = (Integer) request.getAttribute("circunscripcionId");
-        return ResponseEntity.ok(solicitudService.listarTodas(estado, circunscripcionId, cuil, page, size));
+        return ResponseEntity.ok(solicitudService.listarTodas(estado, circunscripcionId, cuil, sort, page, size));
     }
 }
