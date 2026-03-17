@@ -81,6 +81,16 @@ export default function HistorialInternoPage() {
 
   const handleSearch = (e) => {
     e.preventDefault();
+    const input = cuilInput.trim().toUpperCase();
+    // Si el input tiene formato RDAM-YYYYMMDD-NNNN, extraer el ID y navegar directo
+    if (input.startsWith('RDAM-')) {
+      const parts = input.split('-');
+      const id = parts.length >= 3 ? parseInt(parts[2], 10) : NaN;
+      if (!isNaN(id)) {
+        navigate(`/interno/historial/${id}`);
+        return;
+      }
+    }
     setCuil(cuilInput);
     fetchData(1, estadoFiltro, cuilInput);
   };
@@ -136,7 +146,7 @@ export default function HistorialInternoPage() {
       <form onSubmit={handleSearch} style={{ display: 'flex', gap: 10, marginBottom: 20 }}>
         <input
           type="text"
-          placeholder="Buscar por CUIL"
+          placeholder="Buscar por CUIL o N° Trámite (RDAM-...)"
           value={cuilInput}
           onChange={(e) => setCuilInput(e.target.value)}
           style={{

@@ -20,9 +20,10 @@ const solicitudService = {
 
   // ── Ciudadano ──────────────────────────────────────────────────────────
 
-  listar: ({ estado, page = 1, size = 10 } = {}) => {
+  listar: ({ estado, cuil, page = 1, size = 10 } = {}) => {
     const params = { page, size };
     if (estado) params.estado = estado;
+    if (cuil)   params.cuil   = cuil;
     return axiosClient.get('/solicitudes', { params }).then((r) => r.data);
   },
 
@@ -39,10 +40,11 @@ const solicitudService = {
 
   // ── Interno ────────────────────────────────────────────────────────────
 
-  listarInterno: ({ estado, cuil, page = 1, size = 20 } = {}) => {
+  listarInterno: ({ estado, cuil, sort, page = 1, size = 20 } = {}) => {
     const params = { page, size };
     if (estado) params.estado = estado;
     if (cuil)   params.cuil   = cuil;
+    if (sort)   params.sort   = sort;
     return axiosClient.get('/interno/solicitudes', { params }).then((r) => r.data);
   },
 

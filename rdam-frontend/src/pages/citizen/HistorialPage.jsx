@@ -63,11 +63,36 @@ export default function HistorialPage() {
   const [estadoFiltro, setEstadoFiltro] = useState('');
   const [isLoading,    setIsLoading]    = useState(true);
   const [error,        setError]        = useState('');
+  const [searchInput,  setSearchInput]  = useState('');
+  const [cuilFiltro,   setCuilFiltro]   = useState('');
 
-  const fetchData = (page, estado) => {
+  const handleBuscar = (e) => {
+    e.preventDefault();
+    const input = searchInput.trim().toUpperCase();
+    if (!input) return;
+    if (input.startsWith('RDAM-')) {
+      const parts = input.split('-');
+      const id = parts.length >= 3 ? parseInt(parts[2], 10) : NaN;
+      if (!isNaN(id)) {
+        navigate(`/ciudadano/tramites/${id}`);
+        return;
+      }
+    }
+    // Buscar por CUIL
+    setCuilFiltro(input);
+    fetchData(1, estadoFiltro, input);
+  };
+
+  const handleLimpiar = () => {
+    setSearchInput('');
+    setCuilFiltro('');
+    fetchData(1, estadoFiltro, '');
+  };
+
+  const fetchData = (page, estado, cuil) => {
     setIsLoading(true);
     setError('');
-    solicitudService.listar({ page, size: PAGE_SIZE, estado: estado || undefined })
+    solicitudService.listar({ page, size: PAGE_SIZE, estado: estado || undefined, cuil: cuil || undefined })
       .then((data) => {
         setSolicitudes(data.data);
         setPagination(data.pagination);
@@ -80,10 +105,10 @@ export default function HistorialPage() {
 
   const handleFiltro = (estado) => {
     setEstadoFiltro(estado);
-    fetchData(1, estado);
+    fetchData(1, estado, cuilFiltro);
   };
 
-  const handlePage = (newPage) => fetchData(newPage, estadoFiltro);
+  const handlePage = (newPage) => fetchData(newPage, estadoFiltro, cuilFiltro);
 
   const totalPages = Math.ceil(pagination.total / PAGE_SIZE) || 1;
 
@@ -108,6 +133,38 @@ export default function HistorialPage() {
             : 'Historial de solicitudes'}
         </p>
       </div>
+
+      {/* Búsqueda por N° Trámite */}
+      <form onSubmit={handleBuscar} style={{ display: 'flex', gap: 10, marginBottom: 16 }}>
+        <input
+          type="text"
+          placeholder="Buscar por CUIL (XX-XXXXXXXX-X) o N° Trámite (RDAM-...)"
+          value={searchInput}
+          onChange={(e) => setSearchInput(e.target.value)}
+          style={{
+            flex: 1, padding: '9px 14px',
+            border: '1.5px solid var(--gray-300)', borderRadius: 'var(--radius-sm)',
+            fontFamily: 'var(--mono)', fontSize: 13.5, outline: 'none',
+          }}
+        />
+        <button type="submit" style={{
+          padding: '9px 20px', borderRadius: 'var(--radius-sm)',
+          background: 'var(--primary)', color: '#fff', border: 'none',
+          fontFamily: 'var(--font)', fontSize: 13.5, fontWeight: 600, cursor: 'pointer',
+        }}>
+          Buscar
+        </button>
+        {cuilFiltro && (
+          <button type="button" onClick={handleLimpiar} style={{
+            padding: '9px 16px', borderRadius: 'var(--radius-sm)',
+            background: '#fff', color: 'var(--gray-500)',
+            border: '1px solid var(--gray-300)',
+            fontFamily: 'var(--font)', fontSize: 13.5, cursor: 'pointer',
+          }}>
+            Limpiar
+          </button>
+        )}
+      </form>
 
       {/* Filtros por estado */}
       <div style={{ display: 'flex', gap: 8, marginBottom: 20, flexWrap: 'wrap' }}>

@@ -71,11 +71,9 @@ export default function SolicitudesActivasPage() {
   const fetchData = (page, cuilFiltro) => {
     setIsLoading(true);
     setError('');
-    solicitudService.listarInterno({ estado: 'pagada', cuil: cuilFiltro || undefined, page, size: PAGE_SIZE })
+    solicitudService.listarInterno({ estado: 'pagada', cuil: cuilFiltro || undefined, sort: 'payment_confirmed_at_asc', page, size: PAGE_SIZE })
       .then((data) => {
-        // Ordenar de más antigua a más nueva para priorizar atención
-        const sorted = [...data.data].sort((a, b) => new Date(a.paymentConfirmedAt) - new Date(b.paymentConfirmedAt));
-        setSolicitudes(sorted);
+        setSolicitudes(data.data);
         setPagination(data.pagination);
       })
       .catch((err) => setError(err.message ?? 'Error al cargar solicitudes.'))
@@ -86,6 +84,15 @@ export default function SolicitudesActivasPage() {
 
   const handleSearch = (e) => {
     e.preventDefault();
+    const input = cuil.trim().toUpperCase();
+    if (input.startsWith('RDAM-')) {
+      const parts = input.split('-');
+      const id = parts.length >= 3 ? parseInt(parts[2], 10) : NaN;
+      if (!isNaN(id)) {
+        navigate(`/interno/historial/${id}`);
+        return;
+      }
+    }
     fetchData(1, cuil);
   };
 
@@ -120,7 +127,7 @@ export default function SolicitudesActivasPage() {
         <input
           ref={searchRef}
           type="text"
-          placeholder="Buscar por CUIL (XX-XXXXXXXX-X)"
+          placeholder="Buscar por CUIL o N° Trámite (RDAM-...)"
           value={cuil}
           onChange={(e) => setCuil(e.target.value)}
           style={{
