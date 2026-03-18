@@ -78,11 +78,15 @@ cd ruta/a/la/carpeta/RDAM
 
 > En Windows podés hacer clic derecho en la carpeta y seleccionar "Abrir en Terminal" o "Git Bash aquí".
 
+> **Si descargaste el ZIP por mail:** el archivo `.env` ya está incluido con todas las credenciales necesarias. Podés saltear el paso de configuración de variables de entorno e ir directamente al paso 2.
+
 A partir de acá los pasos son iguales para ambas opciones.
 
 ---
 
 ### 1. Configurar variables de entorno del backend
+
+> **Solo necesario si clonaste desde GitHub.** Si descargaste el ZIP por mail, este paso ya está resuelto.
 
 ```bash
 cd rdam-backend
@@ -107,7 +111,7 @@ docker compose up -d --build
 Esto levanta cuatro servicios:
 
 | Servicio | Puerto | Descripción |
-|---|---|---|
+|-----------|-----------|-----------|
 | `rdam-db` | 3306 | MySQL 8.0 |
 | `rdam-backend` | 8080 | API REST Spring Boot |
 | `rdam-pluspagos` | 3000 | Mock de pasarela de pagos |
@@ -128,12 +132,12 @@ El frontend queda disponible en **http://localhost:5173**
 ## Accesos
 
 ### Portal ciudadano
-Ingresar con cualquier dirección de email. El sistema envía un código OTP de 6 dígitos. En perfil `dev`, el OTP aparece en el response del endpoint `/api/v1/auth/register` además de enviarse por email.
+Ingresar con cualquier dirección de email. El sistema genera un código OTP de 6 dígitos. En perfil `dev`, el email **no se envía** — el OTP se autocompleta directamente en el campo del formulario.
 
 ### Portal interno (operadores y admin)
 
 | Email | Password | Rol | Circunscripción |
-|---|---|---|---|
+|-----------|-----------|-----------|-----------|
 | `admin@santafe.gov.ar` | `password123` | Admin | — (acceso global) |
 | `operador1@santafe.gov.ar` | `password123` | Operador | Primera — Santa Fe |
 | `operador2@santafe.gov.ar` | `password123` | Operador | Segunda — Rosario |
@@ -145,7 +149,7 @@ Ingresar con cualquier dirección de email. El sistema envía un código OTP de 
 Al iniciar con Docker, la base de datos se crea automáticamente con datos de prueba definidos en `init.sql`. Incluye solicitudes en todos los estados posibles para facilitar el testing:
 
 | Estado | Descripción |
-|---|---|
+|-----------|-----------|
 | `pendiente_pago` | Solicitud creada, esperando pago |
 | `pagada` | Pago confirmado, esperando certificado del operador |
 | `publicada` | Certificado emitido y disponible para descarga |
@@ -158,7 +162,7 @@ Al iniciar con Docker, la base de datos se crea automáticamente con datos de pr
 ## Tarjetas de prueba (mock PlusPagos)
 
 | Número | Resultado |
-|---|---|
+|-----------|-----------|
 | `4242 4242 4242 4242` | Pago aprobado |
 | `4000 0000 0000 0002` | Pago rechazado |
 | `5555 5555 5555 4444` | Pago aprobado (Mastercard) |
@@ -180,19 +184,19 @@ Acceder a la bandeja en: **http://localhost:8025**
 
 El sistema tiene dos perfiles configurados en `src/main/resources/`:
 
-**`prod` (por defecto):**
+**`dev` (por defecto en este entregable):**
+- JWT extendidos (30 días) para facilitar testing
+- OTP autocompleto en el formulario, email NO enviado
+- Timeout pago: 15 días
+- Logging: DEBUG
+- reCAPTCHA: deshabilitado
+
+**`prod`:**
 - JWT: 24h ciudadano / 4h operadores
 - Email OTP: enviado por Mailpit, NO expuesto en el response
 - Timeout pago: 60 días
 - Logging: INFO
-- reCAPTCHA: según flag `rdam.recaptcha.enabled` en `application.properties`
-
-**`dev`:**
-- JWT extendidos (30 días) para facilitar testing
-- OTP expuesto en el response de `/auth/register`
-- Timeout pago: 15 días
-- Logging: DEBUG
-- reCAPTCHA: deshabilitado
+- reCAPTCHA: habilitado si `rdam.recaptcha.enabled=true`
 
 Para cambiar de perfil, editar `application.properties`:
 
@@ -206,7 +210,7 @@ Y reconstruir:
 docker compose down && docker compose up -d --build
 ```
 
-> **Nota:** En perfil `dev`, el reCAPTCHA está deshabilitado (`rdam.recaptcha.enabled=false` en `application-dev.properties`). Para probarlo, activar perfil `prod` y habilitar el flag.
+> **Para probar el reCAPTCHA:** cambiar a perfil `prod` y asegurarse de que `rdam.recaptcha.enabled=true` en `application.properties`.
 
 ---
 

@@ -127,12 +127,12 @@ INSERT INTO `solicitudes` (`id`, `ciudadano_id`, `circunscripcion_id`, `cuil_con
 -- =============================================================================
 INSERT INTO `certificados` (`id`, `solicitud_id`, `operador_id`, `file_path`, `file_hash`, `emitido_at`, `vence_at`) VALUES
 (1, 3, 2,
- 'storage/3/cert_20260215_090000.pdf',
- 'a3f1c2e4b5d6789012345678901234567890123456789012345678901234abcd',
+ 'storage/certificados/3/cert_20260215_090000.pdf',
+ '1ed294250f5952e93a98781398ca7240940f53efac8e939c38cbef2eb2fbd3fd',
  '2026-02-15 09:05:00',
  '2026-04-21 09:05:00'),
 (2, 9, 2,
- 'storage/9/cert_20260101_100000.pdf',
- 'b4f2d3e5c6a7890123456789012345678901234567890123456789012345bcde',
+ 'storage/certificados/9/cert_20260101_100000.pdf',
+ '9b0323b6e55dfb565ffca3c0f5ce0f9efe438855a70b8d6117401039bbe0cdaa',
  '2026-01-01 10:05:00',
  '2026-03-07 10:05:00');
