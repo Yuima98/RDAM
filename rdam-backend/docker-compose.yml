@@ -30,20 +30,22 @@ services:
     depends_on:
       db:
         condition: service_healthy
+      mailpit:
+        condition: service_started
     ports:
       - "8080:8080"
     environment:
-      DB_URL: jdbc:mysql://db:3306/rdam?useSSL=false&serverTimezone=America/Argentina/Buenos_Aires&characterEncoding=UTF-8&useUnicode=true&allowPublicKeyRetrieval=true&connectionCollation=utf8mb4_unicode_ci
+      DB_URL: jdbc:mysql://db:3306/rdam?useSSL=false&serverTimezone=America/Argentina/Buenos_Aires&characterEncoding=UTF-8&allowPublicKeyRetrieval=true
       DB_USER: root
       DB_PASSWORD: ${DB_PASSWORD}
       JWT_SECRET: ${JWT_SECRET}
       JWT_EXP_CITIZEN: ${JWT_EXP_CITIZEN:-2592000000}
       JWT_EXP_OPERATOR: ${JWT_EXP_OPERATOR:-2592000000}
       STORAGE_PATH: /app/storage/certificados
-      MAIL_HOST: ${MAIL_HOST}
-      MAIL_PORT: ${MAIL_PORT:-587}
-      MAIL_USERNAME: ${MAIL_USERNAME}
-      MAIL_PASSWORD: ${MAIL_PASSWORD}
+      MAIL_HOST: mailpit
+      MAIL_PORT: 1025
+      MAIL_USERNAME: ""
+      MAIL_PASSWORD: ""
       MAIL_FROM: ${MAIL_FROM:-noreply@pj.santafe.gov.ar}
       PLUSPAGOS_URL: http://localhost:3000
       PLUSPAGOS_MERCHANT_GUID: ${PLUSPAGOS_MERCHANT_GUID:-test-merchant-001}
@@ -56,6 +58,18 @@ services:
       - certificados_data:/app/storage/certificados
     extra_hosts:
       - "host.docker.internal:host-gateway"
+
+  # ── Mailpit (SMTP local + UI web) ────────────────────────────────────────────
+  mailpit:
+    image: axllent/mailpit:latest
+    container_name: rdam-mailpit
+    restart: unless-stopped
+    ports:
+      - "1025:1025"   # SMTP
+      - "8025:8025"   # UI web
+    environment:
+      MP_SMTP_AUTH_ACCEPT_ANY: 1
+      MP_SMTP_AUTH_ALLOW_INSECURE: 1
 
   # ── PlusPagos Mock ────────────────────────────────────────────────────────────
   pluspagos:

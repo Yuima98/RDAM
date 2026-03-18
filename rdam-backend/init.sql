@@ -111,16 +111,16 @@ INSERT INTO `users` (`id`, `email`, `password_hash`, `role`, `circunscripcion_id
 -- SOLICITUDES
 -- =============================================================================
 INSERT INTO `solicitudes` (`id`, `ciudadano_id`, `circunscripcion_id`, `cuil_consultado`, `email_contacto`, `estado`, `payment_external_id`, `payment_confirmed_at`, `created_at`) VALUES
-(1,  5, 1, '20-12345678-9', 'ciudadano_a@gmail.com', 'pendiente_pago',   NULL,                  NULL,                  NOW()),
-(2,  5, 1, '27-98765432-1', 'ciudadano_a@gmail.com', 'pagada',           'TXN-2-1772338091001', NOW(),                 DATE_SUB(NOW(), INTERVAL 1 HOUR)),
-(3,  5, 1, '30-11223344-5', 'ciudadano_a@gmail.com', 'publicada',        'TXN-3-1772338091002', '2026-02-15 09:00:00', '2026-02-15 08:00:00'),
-(4,  5, 1, '20-55667788-9', 'ciudadano_a@gmail.com', 'cancelada',        NULL,                  NULL,                  DATE_SUB(NOW(), INTERVAL 5 DAY)),
-(5,  6, 1, '27-11223355-4', 'ciudadano_b@gmail.com', 'pendiente_pago',   NULL,                  NULL,                  NOW()),
-(6,  5, 2, '23-44556677-8', 'ciudadano_a@gmail.com', 'pendiente_pago',   NULL,                  NULL,                  NOW()),
-(7,  5, 1, '20-33445566-7', 'ciudadano_a@gmail.com', 'pagada',           'TXN-7-1772338091007', DATE_SUB(NOW(), INTERVAL 1 DAY),  DATE_SUB(NOW(), INTERVAL 1 DAY)),
+(1,  5, 1, '20-12345678-6', 'ciudadano_a@gmail.com', 'pendiente_pago',   NULL,                  NULL,                  NOW()),
+(2,  5, 1, '27-98765432-0', 'ciudadano_a@gmail.com', 'pagada',           'TXN-2-1772338091001', NOW(),                 DATE_SUB(NOW(), INTERVAL 1 HOUR)),
+(3,  5, 1, '30-11223344-6', 'ciudadano_a@gmail.com', 'publicada',        'TXN-3-1772338091002', '2026-02-15 09:00:00', '2026-02-15 08:00:00'),
+(4,  5, 1, '20-55667788-4', 'ciudadano_a@gmail.com', 'cancelada',        NULL,                  NULL,                  DATE_SUB(NOW(), INTERVAL 5 DAY)),
+(5,  6, 1, '27-11223355-0', 'ciudadano_b@gmail.com', 'pendiente_pago',   NULL,                  NULL,                  NOW()),
+(6,  5, 2, '23-44556677-2', 'ciudadano_a@gmail.com', 'pendiente_pago',   NULL,                  NULL,                  NOW()),
+(7,  5, 1, '20-33445566-2', 'ciudadano_a@gmail.com', 'pagada',           'TXN-7-1772338091007', DATE_SUB(NOW(), INTERVAL 1 DAY),  DATE_SUB(NOW(), INTERVAL 1 DAY)),
 (8,  5, 2, '27-44556677-8', 'ciudadano_a@gmail.com', 'pagada',           'TXN-8-1772338091008', DATE_SUB(NOW(), INTERVAL 5 DAY),  DATE_SUB(NOW(), INTERVAL 5 DAY)),
-(9,  5, 1, '20-99887766-5', 'ciudadano_a@gmail.com', 'publicada_vencida','TXN-9-1772338091009', '2026-01-01 10:00:00', '2026-01-01 09:00:00'),
-(10, 5, 3, '23-11223344-5', 'ciudadano_a@gmail.com', 'vencida',          NULL,                  NULL,                  '2025-12-01 10:00:00');
+(9,  5, 1, '20-99887766-1', 'ciudadano_a@gmail.com', 'publicada_vencida','TXN-9-1772338091009', '2026-01-01 10:00:00', '2026-01-01 09:00:00'),
+(10, 5, 3, '23-11223344-4', 'ciudadano_a@gmail.com', 'vencida',          NULL,                  NULL,                  '2025-12-01 10:00:00');
 
 -- =============================================================================
 -- CERTIFICADOS

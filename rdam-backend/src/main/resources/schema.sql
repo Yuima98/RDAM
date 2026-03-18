@@ -1,18 +1,24 @@
 -- =============================================================================
 -- RDAM - Registro de Deudores Alimentarios Morosos
 -- Poder Judicial de la Provincia de Santa Fe
--- DDL Script v1.6 — Febrero 2026
+-- DDL Script v2.0 — Marzo 2026
 -- Motor: MySQL 8.0 | InnoDB | utf8mb4
+--
+-- USO:
+--   Este script crea la estructura de la base de datos SIN datos de prueba.
+--   Para desarrollo con datos de prueba, usar init.sql (montado por Docker).
+--   Para ejecutar este script manualmente:
+--     mysql -uroot -p < schema.sql
+--   O desde Docker:
+--     docker exec -i rdam-db mysql -uroot -p<password> < schema.sql
 -- =============================================================================
 
--- -----------------------------------------------------------------------------
--- Creación y selección del esquema
--- -----------------------------------------------------------------------------
 CREATE SCHEMA IF NOT EXISTS `rdam`
     DEFAULT CHARACTER SET utf8mb4
     COLLATE utf8mb4_unicode_ci;
 
 USE `rdam`;
+SET NAMES utf8mb4;
 
 -- =============================================================================
 -- TABLA: circunscripciones
@@ -23,14 +29,10 @@ CREATE TABLE `circunscripciones` (
     `is_active` TINYINT(1)          NOT NULL DEFAULT 1,
     PRIMARY KEY (`id`),
     CONSTRAINT `uq_circunscripciones_nombre` UNIQUE (`nombre`)
-) ENGINE=InnoDB
-  DEFAULT CHARSET=utf8mb4
-  COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- =============================================================================
 -- TABLA: users
--- Cambios v1.6: agrega circunscripcion_id para operadores.
---               Admin tiene NULL (acceso global).
 -- =============================================================================
 CREATE TABLE `users` (
     `id`                  BIGINT UNSIGNED     NOT NULL AUTO_INCREMENT,
@@ -46,17 +48,20 @@ CREATE TABLE `users` (
     PRIMARY KEY (`id`),
     CONSTRAINT `uq_users_email` UNIQUE (`email`),
     CONSTRAINT `fk_users_circunscripcion` FOREIGN KEY (`circunscripcion_id`)
-        REFERENCES `circunscripciones` (`id`)
-        ON DELETE RESTRICT
-        ON UPDATE CASCADE
-) ENGINE=InnoDB
-  DEFAULT CHARSET=utf8mb4
-  COLLATE=utf8mb4_unicode_ci;
+        REFERENCES `circunscripciones` (`id`) ON DELETE RESTRICT ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 CREATE INDEX `idx_users_role_active` ON `users` (`role`, `is_active`);
 
 -- =============================================================================
 -- TABLA: solicitudes
+-- Estados:
+--   pendiente_pago  → solicitud creada, esperando confirmación de pago
+--   pagada          → pago confirmado via webhook, esperando certificado
+--   publicada       → certificado emitido y disponible
+--   publicada_vencida → certificado vencido (>65 días), PDF eliminado
+--   cancelada       → pago rechazado o fallido
+--   vencida         → timeout de pago superado (>60 días PRD / 15 días DEV)
 -- =============================================================================
 CREATE TABLE `solicitudes` (
     `id`                    BIGINT UNSIGNED     NOT NULL AUTO_INCREMENT,
@@ -64,7 +69,7 @@ CREATE TABLE `solicitudes` (
     `circunscripcion_id`    TINYINT UNSIGNED    NOT NULL,
     `cuil_consultado`       VARCHAR(13)         NOT NULL,
     `email_contacto`        VARCHAR(255)        NOT NULL,
-    `estado`                ENUM('pendiente_pago','pagada','publicada','publicada_vencida','cancelada') NOT NULL DEFAULT 'pendiente_pago',
+    `estado`                ENUM('pendiente_pago','pagada','publicada','publicada_vencida','cancelada','vencida') NOT NULL DEFAULT 'pendiente_pago',
     `payment_external_id`   VARCHAR(255)        NULL DEFAULT NULL,
     `payment_confirmed_at`  DATETIME            NULL DEFAULT NULL,
     `created_at`            DATETIME            NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -75,12 +80,10 @@ CREATE TABLE `solicitudes` (
         REFERENCES `users` (`id`) ON DELETE RESTRICT ON UPDATE CASCADE,
     CONSTRAINT `fk_solicitudes_circunscripcion` FOREIGN KEY (`circunscripcion_id`)
         REFERENCES `circunscripciones` (`id`) ON DELETE RESTRICT ON UPDATE CASCADE
-) ENGINE=InnoDB
-  DEFAULT CHARSET=utf8mb4
-  COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 CREATE INDEX `idx_solicitudes_ciudadano_estado` ON `solicitudes` (`ciudadano_id`, `estado`);
-CREATE INDEX `idx_solicitudes_estado_created` ON `solicitudes` (`estado`, `created_at`);
+CREATE INDEX `idx_solicitudes_estado_created`   ON `solicitudes` (`estado`, `created_at`);
 
 -- =============================================================================
 -- TABLA: certificados
@@ -101,24 +104,25 @@ CREATE TABLE `certificados` (
         REFERENCES `solicitudes` (`id`) ON DELETE RESTRICT ON UPDATE CASCADE,
     CONSTRAINT `fk_certificados_operador` FOREIGN KEY (`operador_id`)
         REFERENCES `users` (`id`) ON DELETE RESTRICT ON UPDATE CASCADE
-) ENGINE=InnoDB
-  DEFAULT CHARSET=utf8mb4
-  COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 CREATE INDEX `idx_certificados_vence_at` ON `certificados` (`vence_at`);
 
 -- =============================================================================
 -- DATOS INICIALES — Circunscripciones Judiciales de Santa Fe
+-- (Estos datos son reales y necesarios para el funcionamiento del sistema)
 -- =============================================================================
 INSERT INTO `circunscripciones` (`nombre`, `is_active`) VALUES
-    ('Primera Circunscripción - Santa Fe',     1),
-    ('Segunda Circunscripción - Rosario',      1),
-    ('Tercera Circunscripción - Venado Tuerto',1),
-    ('Cuarta Circunscripción - Reconquista',   1),
-    ('Quinta Circunscripción - Rafaela',       1);
+    ('Primera Circunscripción - Santa Fe',      1),
+    ('Segunda Circunscripción - Rosario',       1),
+    ('Tercera Circunscripción - Venado Tuerto', 1),
+    ('Cuarta Circunscripción - Reconquista',    1),
+    ('Quinta Circunscripción - Rafaela',        1);
 
 -- =============================================================================
--- FIN DEL SCRIPT DDL
--- Versión: 1.6 | Febrero 2026
--- Cambios v1.6: circunscripcion_id agregado a users (operadores).
+-- FIN DEL SCRIPT
+-- Para agregar el primer usuario admin ejecutar:
+--   INSERT INTO users (email, password_hash, role) VALUES
+--   ('admin@santafe.gov.ar', '<bcrypt_hash>', 'admin');
+-- Generar hash BCrypt en: https://bcrypt-generator.com/
 -- =============================================================================
