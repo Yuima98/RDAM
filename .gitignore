@@ -1,10 +1,8 @@
 # ── Backend ───────────────────────────────────────────────────────────────────
 rdam-backend/target/
-rdam-backend/*.class
-rdam-backend/*.jar
 rdam-backend/.idea/
 rdam-backend/*.iml
-rdam-backend/.vscode/launch.json
+rdam-backend/.vscode/
 rdam-backend/.env
 rdam-backend/storage/
 rdam-backend/pluspagos-mock-simple/node_modules/
@@ -18,4 +16,8 @@ rdam-frontend/.vite/
 
 # ── General ───────────────────────────────────────────────────────────────────
 .DS_Store
+Thumbs.db
 *.log
+*.env.local
+/package-lock.json
+/package.json
